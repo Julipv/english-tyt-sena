@@ -14,7 +14,7 @@ function notify(msg, error = false) {
 }
 
 function renderLogin(message = "") {
-  app.innerHTML = `<section class="card narrow"><p class="kicker">Acceso autorizado</p><h1>Panel docente</h1><p class="muted">Inicia sesión para ver resultados y administrar fichas.</p>
+  app.innerHTML = `<section class="card narrow"><h1>Panel docente</h1><p class="muted">Inicia sesión para ver resultados y administrar fichas.</p>
     ${message ? `<div class="alert bad">${esc(message)}</div>` : ""}
     <form id="admin-login" class="form"><label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label>
       <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
@@ -70,7 +70,7 @@ function renderTable() {
 
 function renderDashboard() {
   const fichaOptions = [...new Set([...fichas.map(f => f.code), ...records.map(r => r.ficha).filter(Boolean)])].sort();
-  app.innerHTML = `<header class="page-head row between" style="align-items:flex-end"><div><p class="kicker">Panel privado</p><h1>Resultados</h1></div>
+  app.innerHTML = `<header class="page-head row between" style="align-items:flex-end"><div><h1>Resultados</h1></div>
       <div class="row" style="margin:0"><button class="btn ghost sm" id="refresh">Actualizar</button><button class="btn sm" id="csv">Descargar CSV</button><button class="btn ghost sm" id="logout">Cerrar sesión</button></div></header>
     <div class="help"><div><b>1 · Fichas</b>Agrega abajo las fichas que vas a evaluar. Los aprendices solo verán las activas.</div><div><b>2 · Filtra</b>Elige una ficha y una evaluación para ver solo esos resultados.</div><div><b>3 · Descarga</b>“Descargar CSV” baja exactamente lo que estás viendo.</div></div>
     <div class="stats" id="eval-avgs"></div>
@@ -84,7 +84,7 @@ function renderDashboard() {
       <div class="stats" id="stats"></div>
       <div class="table-wrap"><table><thead><tr><th>Aprendiz</th><th>Ficha</th><th>Evaluación</th><th>Fecha</th><th>Por parte</th><th>Nota</th><th>Tiempo</th></tr></thead><tbody id="results-body"></tbody></table></div>
     </section>
-    <section class="card"><p class="eyebrow">Administración</p><h2>Fichas</h2><p class="muted">Los aprendices solo pueden elegir las fichas activas. Desactiva una ficha cuando termine su proceso; sus resultados se conservan.</p>
+    <section class="card"><h2>Fichas</h2><p class="muted">Los aprendices solo pueden elegir las fichas activas. Desactiva una ficha cuando termine su proceso; sus resultados se conservan.</p>
       ${missingMigration ? "" : `<form id="ficha-form" class="form ficha-form">
         <label>Número de ficha<input name="code" required maxlength="20" inputmode="numeric" placeholder="3230441"></label>
         <label>Programa (opcional)<input name="program" maxlength="80" placeholder="Ej. Análisis y desarrollo de software"></label>

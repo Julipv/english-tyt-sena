@@ -42,7 +42,6 @@ function practiceSection(part, set) {
 }
 
 // ───── piezas visuales ─────
-const pad = n => String(n).padStart(2, "0");
 const ICONS = {
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
@@ -50,8 +49,7 @@ const ICONS = {
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/>',
-  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
-  user: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.5 4-5 7-5s5.8 1.5 7 5"/>'
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
 };
 const icon = (name, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 
@@ -65,9 +63,9 @@ function passage(section, gap) {
 }
 function itemPrompt(it) {
   const { part, q, section } = it;
-  if (part === 1) return `<p class="prompt">${esc(q.prompt)}</p><p class="label">Word bank · algunas palabras no se usan</p>`;
-  if (part === 2) return `<div class="sign-stage">${sign(q)}</div><p class="label">Where can you see this notice?</p>`;
-  if (part === 3) return `<div class="chat"><div class="bubble"><span class="who">A</span>${esc(q.a)}</div><div class="bubble me"><span class="who">B</span>¿…?</div></div><p class="label">Choose the best response</p>`;
+  if (part === 1) return `<p class="prompt">${esc(q.prompt)}</p><p class="label">Elige la palabra. Algunas no se usan.</p>`;
+  if (part === 2) return `<div class="sign-stage">${sign(q)}</div><p class="label">¿Dónde verías este aviso?</p>`;
+  if (part === 3) return `<div class="chat"><p class="bubble"><span class="who">A</span>${esc(q.a)}</p><p class="bubble me"><span class="who">B</span>…</p></div><p class="label">¿Qué responde B?</p>`;
   if (part === 4 || part === 7) return `${passage(section, q.gap)}<p class="label">¿Qué palabra va en el espacio (${q.gap})?</p>`;
   return `${passage(section)}<p class="prompt q">${esc(q.q)}</p>`;
 }
@@ -79,68 +77,40 @@ function optionList(it, chosen, reveal, action, key = "") {
   }).join("")}</div>`;
 }
 const explanationOf = q => q.explanation || q.feedback || "";
-const crumbs = (...items) => `<nav class="crumbs" aria-label="Ruta">${items.map((x, i) => i < items.length - 1 ? `<button class="crumb" data-action="${x[1]}">${x[0]}</button><span aria-hidden="true">/</span>` : `<span>${x[0]}</span>`).join("")}</nav>`;
+const back = (label, action, extra = "") => `<button class="back" data-action="${action}" ${extra}>${icon("back")} ${label}</button>`;
 
 // ───── vistas ─────
 function vHome() {
   const pending = read(STORAGE_FINAL, null);
-  const total = Object.values(evaluations).reduce((s, ev) => s + flattenEvaluation(ev).length, 0);
   return `<section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">SENA · Saber TyT · Módulo de inglés</p>
-      <h1>Aprende las 7 partes del inglés del <span class="hl">Saber TyT</span></h1>
-      <p class="lead">Cada parte explicada con ejemplos para practicar. Cuando termines un bloque, presentas su evaluación con tu ficha.</p>
-      <div class="row"><button class="btn" data-action="part" data-p="1">Empezar a estudiar ${icon("arrow")}</button><button class="btn ghost" data-action="evals">Ver evaluaciones</button></div>
-      ${pending ? `<div class="alert warn"><strong>Tienes la evaluación final en curso.</strong> <button class="link" data-action="resume-final">Continuar ahora</button></div>` : ""}
-      <dl class="facts"><div><dt>Partes</dt><dd>7</dd></div><div><dt>Evaluaciones</dt><dd>4</dd></div><div><dt>Preguntas</dt><dd>${total}</dd></div></dl>
+      <h1>Aprende el inglés del <span class="hl">Saber TyT</span>, parte por parte.</h1>
+      <p class="lead">La prueba tiene 7 partes. Aquí cada una se explica con ejemplos, y al terminar cada bloque presentas una evaluación con tu ficha.</p>
+      <div class="row"><button class="btn" data-action="part" data-p="1">Empezar por la Parte 1 ${icon("arrow")}</button><button class="link" data-action="evals">Ya estudié, ir a evaluaciones</button></div>
+      ${pending ? `<div class="alert warn"><strong>Tienes la evaluación final en curso.</strong> <button class="link" data-action="resume-final">Continuar donde ibas</button></div>` : ""}
     </div>
-    <div class="hero-visual" aria-hidden="true">
-      <div class="preview">
-        <div class="preview-top"><span class="mono">PARTE 02 · PREGUNTA 3 DE 5</span><span class="mono">${icon("clock")} 02:14</span></div>
-        <div class="bar"><span style="width:52%"></span></div>
-        <div class="sign-stage small">${sign({ kind: "warning", message: "Please keep your ticket until the end of the journey." })}</div>
-        <p class="label">Where can you see this notice?</p>
-        <div class="options"><div class="option dim"><span class="key">A</span>Hospital</div><div class="option right"><span class="key">B</span>Train station</div><div class="option dim"><span class="key">C</span>Pharmacy</div></div>
-      </div>
+    <div class="preview" aria-hidden="true">
+      <div class="preview-top"><span>Parte 2 · Pregunta 3 de 5</span><span class="clock">${icon("clock")} 2:14</span></div>
+      <div class="bar"><span style="width:52%"></span></div>
+      <div class="sign-stage small">${sign({ kind: "warning", message: "Please keep your ticket until the end of the journey." })}</div>
+      <p class="label">¿Dónde verías este aviso?</p>
+      <div class="options"><div class="option dim"><span class="key">A</span>Hospital</div><div class="option right"><span class="key">B</span>Train station</div><div class="option dim"><span class="key">C</span>Pharmacy</div></div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="section-head"><p class="eyebrow">Cómo funciona</p><h2>Tres pasos para cada bloque</h2></div>
-    <ol class="steps">
-      <li><span class="step-n">01</span><h3>Estudia la parte</h3><p>Qué te piden, cómo resolverla y los errores que debes evitar.</p></li>
-      <li><span class="step-n">02</span><h3>Resuelve los ejemplos</h3><p>Elige una respuesta, pide una pista y mira la explicación.</p></li>
-      <li><span class="step-n">03</span><h3>Presenta la evaluación</h3><p>Escribe tu nombre, elige tu ficha y responde. Tu nota llega a tu instructora.</p></li>
-    </ol>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><p class="eyebrow">Tu ruta</p><h2>Los 3 bloques y la evaluación final</h2></div>
-    <div class="route">
-      ${BLOCKS.map((b, i) => `<article class="block">
-        <p class="mono block-n">BLOQUE ${pad(i + 1)}</p>
-        <h3>Partes ${b.parts[0]} a ${b.parts.at(-1)}</h3>
-        <p class="muted">${esc(b.about)}</p>
-        <ul class="part-list">${b.parts.map(n => `<li><button class="part-row" data-action="part" data-p="${n}"><span class="part-n">${pad(n)}</span><span><strong>${esc(parts[n].title)}</strong><small>${esc(parts[n].en)}</small></span>${icon("arrow", "go")}</button></li>`).join("")}</ul>
-        <button class="btn ghost full" data-action="register" data-ev="${b.ev}">Presentar ${esc(evaluations[b.ev].title)}</button>
-      </article>`).join("")}
-      <article class="block final">
-        <p class="mono block-n">FINAL</p>
-        <h3>Evaluación final</h3>
-        <p>Las 7 partes en ${flattenEvaluation(evaluations.final).length} preguntas. Es tu nota definitiva y se presenta una sola vez.</p>
-        <ul class="final-list"><li>${icon("check")} Estudia los 3 bloques antes</li><li>${icon("lock")} Una sola oportunidad</li><li>${icon("clock")} Si se cierra, continúas donde ibas</li></ul>
-        <button class="btn light full" data-action="register" data-ev="final">Presentar evaluación final</button>
-      </article>
+  <section class="route">
+    <h2>Tu ruta</h2>
+    <p class="muted">Estudia las partes en orden. Al final de cada bloque está su evaluación.</p>
+    ${BLOCKS.map((b, i) => `<div class="group">
+      <h3>Bloque ${i + 1} <span>· ${esc(b.about)}</span></h3>
+      <ul class="rows">${b.parts.map(n => `<li><button class="row-link" data-action="part" data-p="${n}"><span class="n">${n}</span><span class="t"><strong>${esc(parts[n].title)}</strong><small>${esc(parts[n].en)}</small></span>${icon("arrow", "go")}</button></li>`).join("")}
+        <li><button class="row-link eval" data-action="register" data-ev="${b.ev}"><span class="n">${icon("check")}</span><span class="t"><strong>${esc(evaluations[b.ev].title)}</strong><small>${flattenEvaluation(evaluations[b.ev]).length} preguntas sobre las partes ${b.parts.join(", ")}</small></span>${icon("arrow", "go")}</button></li>
+      </ul></div>`).join("")}
+    <div class="final">
+      <div><h3>Evaluación final</h3><p>Las 7 partes en ${flattenEvaluation(evaluations.final).length} preguntas. Es tu nota definitiva y se presenta una sola vez.</p></div>
+      <button class="btn light" data-action="register" data-ev="final">Presentar la final</button>
     </div>
-  </section>
-
-  <section class="section keys-cta">
-    <div><p class="eyebrow">Antes de presentar</p><h2>Claves del inglés</h2><p class="muted">La diferencia más importante: si la pregunta empieza con What, Where o Why, respondes con información. Si empieza con Do, Is o Can, respondes Yes o No.</p>
-      <button class="btn ghost" data-action="keys">Ver las claves ${icon("arrow")}</button></div>
-    <div class="mini-compare" aria-hidden="true">
-      <div><span class="mono">WH</span><p class="q">Where do you study?</p><p class="a">At the SENA centre.</p></div>
-      <div><span class="mono">YES / NO</span><p class="q">Do you study at SENA?</p><p class="a">Yes, I do.</p></div>
-    </div>
+    <p class="aside">${icon("bulb")} Antes de presentar, lee las <button class="link" data-action="keys">claves del inglés</button>: cuándo responder con información y cuándo con Yes o No.</p>
   </section>`;
 }
 
@@ -149,66 +119,65 @@ function vPart() {
   const done = practiceDone()[n] || [];
   const block = BLOCKS.find(b => b.parts.includes(n));
   const endOfBlock = block.parts.at(-1) === n;
-  return `${crumbs(["Inicio", "home"], [p.label])}
-  <nav class="stepper" aria-label="Partes">${Object.keys(parts).map(k => `<button class="st ${Number(k) < n ? "past" : ""}" data-action="part" data-p="${k}" ${Number(k) === n ? 'aria-current="step"' : ""} aria-label="Parte ${k}"><span>${k}</span></button>`).join('<i aria-hidden="true"></i>')}</nav>
-  <header class="part-head"><p class="eyebrow">Parte ${pad(n)} de 07 · ${esc(p.en)}</p><h1>${esc(p.title)}</h1><p class="lead">${esc(p.summary)}</p></header>
-  <section class="lesson">
-    <article class="card"><p class="mono card-n">A</p><h2>Cómo se ve en la prueba</h2><ul class="list dot">${p.format.map(f => `<li>${esc(f)}</li>`).join("")}</ul></article>
-    <article class="card strong"><p class="mono card-n">B</p><h2>Cómo resolverla</h2><ol class="list num">${p.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></article>
-    <article class="card"><p class="mono card-n">C</p><h2>Errores comunes</h2><ul class="list bad">${p.mistakes.map(s => `<li>${icon("x")}<span>${esc(s)}</span></li>`).join("")}</ul></article>
-    <article class="card"><p class="mono card-n">D</p><h2>Claves para esta parte</h2><ul class="list good">${p.keys.map(s => `<li>${icon("check")}<span>${esc(s)}</span></li>`).join("")}</ul></article>
+  return `<div class="part-nav">${back("Inicio", "home")}<nav class="tabs" aria-label="Partes">${Object.keys(parts).map(k => `<button class="tab" data-action="part" data-p="${k}" ${Number(k) === n ? 'aria-current="page"' : ""} aria-label="Parte ${k}">${k}</button>`).join("")}</nav></div>
+  <header class="page-title"><p class="muted">Parte ${n} de 7 · ${esc(p.en)}</p><h1>${esc(p.title)}</h1><p class="lead">${esc(p.summary)}</p></header>
+  <section class="doc">
+    <h2>Cómo resolverla</h2>
+    <ol class="steps">${p.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    <div class="two">
+      <div><h3>Evita estos errores</h3><ul class="list bad">${p.mistakes.map(s => `<li>${icon("x")}<span>${esc(s)}</span></li>`).join("")}</ul></div>
+      <div><h3>Recuerda</h3><ul class="list good">${p.keys.map(s => `<li>${icon("check")}<span>${esc(s)}</span></li>`).join("")}</ul></div>
+    </div>
+    <p class="format"><strong>En la prueba:</strong> ${p.format.map(esc).join(" ")}</p>
   </section>
-  <div class="section-head tight"><p class="eyebrow">Practica aquí</p><h2>Ejemplo${p.examples.length > 1 ? "s" : ""} para resolver</h2></div>
-  <div class="examples">${p.examples.map((ex, e) => vExample(n, e, ex)).join("")}</div>
-  ${n <= 3 ? `<div class="card practice"><div><h3>Más práctica de la parte ${n}</h3><p class="muted">2 ejercicios de 5 preguntas · ${done.length} de 2 completados</p></div><div class="row">${[0, 1].map(s => `<button class="btn ${done.includes(s) ? "ghost" : ""}" data-action="practice" data-p="${n}" data-s="${s}">${done.includes(s) ? icon("check") : ""}Ejercicio ${s + 1}</button>`).join("")}</div></div>` : ""}
-  ${endOfBlock ? `<div class="next-eval"><div><p class="eyebrow">Terminaste el bloque ${BLOCKS.indexOf(block) + 1}</p><h3>Ya puedes presentar la ${esc(evaluations[block.ev].title)}</h3><p class="muted">Incluye las partes ${block.parts.join(", ")}.</p></div><button class="btn" data-action="register" data-ev="${block.ev}">Presentar ahora ${icon("arrow")}</button></div>` : ""}
-  <div class="pager">${n > 1 ? `<button class="btn ghost" data-action="part" data-p="${n - 1}">${icon("back")} Parte ${n - 1}</button>` : "<span></span>"}${n < 7 ? `<button class="btn" data-action="part" data-p="${n + 1}">Parte ${n + 1} ${icon("arrow")}</button>` : `<button class="btn" data-action="evals">Ver evaluaciones ${icon("arrow")}</button>`}</div>`;
+  <section class="doc">
+    <h2>Pruébalo</h2>
+    ${p.examples.map((ex, e) => vExample(n, e, ex)).join("")}
+    ${n <= 3 ? `<p class="more">¿Quieres más práctica? ${[0, 1].map(s => `<button class="btn sm ${done.includes(s) ? "ghost" : "ghost"}" data-action="practice" data-p="${n}" data-s="${s}">${done.includes(s) ? icon("check") : ""}Ejercicio ${s + 1}</button>`).join(" ")}</p>` : ""}
+  </section>
+  ${endOfBlock ? `<div class="next-eval"><div><h3>Terminaste el bloque ${BLOCKS.indexOf(block) + 1}</h3><p>Ya puedes presentar la ${esc(evaluations[block.ev].title)} (partes ${block.parts.join(", ")}).</p></div><button class="btn" data-action="register" data-ev="${block.ev}">Presentar ahora ${icon("arrow")}</button></div>` : ""}
+  <div class="pager">${n > 1 ? `<button class="btn ghost" data-action="part" data-p="${n - 1}">${icon("back")} Parte ${n - 1}</button>` : "<span></span>"}${n < 7 ? `<button class="btn" data-action="part" data-p="${n + 1}">Parte ${n + 1}: ${esc(parts[n + 1].title)} ${icon("arrow")}</button>` : `<button class="btn" data-action="evals">Ir a las evaluaciones ${icon("arrow")}</button>`}</div>`;
 }
 function vExample(n, e, ex) {
   const it = flattenEvaluation({ sections: [ex] })[0];
   const k = `${n}-${e}`;
   const pick = lessonPick[k] || {};
-  return `<section class="card example"><p class="mono card-n">EJEMPLO ${pad(e + 1)}</p>${itemPrompt(it)}
+  return `<div class="example">${itemPrompt(it)}
     ${optionList(it, pick.chosen ?? null, pick.checked, "ex-pick", k)}
-    <div class="row"><button class="btn sm" data-action="ex-check" data-k="${k}">Comprobar</button><button class="btn sm ghost" data-action="ex-hint" data-k="${k}">${icon("bulb")} ${pick.hint ? "Ocultar pista" : "Ver pista"}</button></div>
-    ${pick.hint ? `<p class="hint">${esc(it.q.hint)}</p>` : ""}
-    ${pick.checked ? `<div class="alert ${pick.chosen === it.answer ? "ok" : "bad"}"><strong>${pick.chosen === it.answer ? "Correcto" : `La respuesta es ${L(it.answer)}. ${esc(it.options[it.answer])}`}</strong>${esc(it.q.explanation)}</div>` : ""}
-  </section>`;
+    <div class="row"><button class="btn sm" data-action="ex-check" data-k="${k}">Comprobar</button><button class="link" data-action="ex-hint" data-k="${k}">${pick.hint ? "Ocultar pista" : "Ver una pista"}</button></div>
+    ${pick.hint ? `<p class="hint">${icon("bulb")} ${esc(it.q.hint)}</p>` : ""}
+    ${pick.checked ? `<div class="alert ${pick.chosen === it.answer ? "ok" : "bad"}"><strong>${pick.chosen === it.answer ? "Correcto" : `Es la ${L(it.answer)}: ${esc(it.options[it.answer])}`}</strong>${esc(it.q.explanation)}</div>` : ""}
+  </div>`;
 }
 
 function vKeys() {
-  return `${crumbs(["Inicio", "home"], ["Claves del inglés"])}
-  <header class="part-head"><p class="eyebrow">Antes de presentar</p><h1>Claves del inglés</h1><p class="lead">Lo que más te ayuda en todas las partes. Empieza por la primera: es la base de la Parte 3.</p></header>
+  return `${back("Inicio", "home")}
+  <header class="page-title"><h1>Claves del inglés</h1><p class="lead">Lo que más ayuda en toda la prueba. Empieza por la primera: es la base de la Parte 3.</p></header>
   <div class="compare">
-    <div class="cmp"><p class="mono">EMPIEZA CON WHAT · WHERE · WHEN · WHO · WHY · HOW</p><h3>Pregunta WH: respondes con información</h3><p class="q">Where do you study?</p><p class="ans ok">${icon("check")} At the SENA centre.</p><p class="ans no">${icon("x")} Yes, I do.</p></div>
-    <div class="cmp alt"><p class="mono">EMPIEZA CON DO · IS · CAN · DID · ARE · WILL</p><h3>Pregunta cerrada: respondes Yes o No</h3><p class="q">Do you study at SENA?</p><p class="ans ok">${icon("check")} Yes, I do.</p><p class="ans no">${icon("x")} At the SENA centre.</p></div>
+    <div class="cmp"><h3>Empieza con What, Where, When, Who, Why, How</h3><p class="muted">Respondes con <strong>información</strong>.</p><p class="q">Where do you study?</p><p class="ans ok">${icon("check")} At the SENA centre.</p><p class="ans no">${icon("x")} Yes, I do.</p></div>
+    <div class="cmp alt"><h3>Empieza con Do, Is, Can, Did, Are, Will</h3><p class="muted">Respondes <strong>Yes o No</strong> + el mismo auxiliar.</p><p class="q">Do you study at SENA?</p><p class="ans ok">${icon("check")} Yes, I do.</p><p class="ans no">${icon("x")} At the SENA centre.</p></div>
   </div>
-  ${englishKeys.map((k, i) => `<section class="card keyblock"><p class="mono card-n">${pad(i + 1)}</p><h2>${esc(k.title)}</h2><p>${esc(k.intro)}</p>
+  ${englishKeys.map(k => `<section class="doc"><h2>${esc(k.title)}</h2><p>${esc(k.intro)}</p>
     ${k.table ? `<div class="table-wrap"><table>${k.table.map(r => `<tr>${r.map((c, j) => j ? `<td>${esc(c)}</td>` : `<th scope="row">${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>` : ""}
     ${k.list ? `<ul class="list good">${k.list.map(x => `<li>${icon("check")}<span>${esc(x)}</span></li>`).join("")}</ul>` : ""}
-    ${k.tip ? `<p class="hint">${esc(k.tip)}</p>` : ""}</section>`).join("")}
-  <div class="pager"><span></span><button class="btn" data-action="evals">Ver evaluaciones ${icon("arrow")}</button></div>`;
+    ${k.tip ? `<p class="hint">${icon("bulb")} ${esc(k.tip)}</p>` : ""}</section>`).join("")}
+  <div class="pager"><span></span><button class="btn" data-action="evals">Ir a las evaluaciones ${icon("arrow")}</button></div>`;
 }
 
 function vEvals() {
-  return `${crumbs(["Inicio", "home"], ["Evaluaciones"])}
-  <header class="part-head"><p class="eyebrow">Tu nota llega a tu instructora</p><h1>Evaluaciones</h1><p class="lead">Necesitas tu nombre completo y tu ficha. Si tu ficha no aparece en la lista, avísale a tu instructora.</p></header>
-  <section class="evals">${Object.values(evaluations).map((ev, i) => {
-    const n = flattenEvaluation(ev).length;
-    return `<article class="eval ${ev.final ? "final" : ""}"><p class="mono block-n">${ev.final ? "FINAL" : `EVALUACIÓN ${pad(i + 1)}`}</p><h3>${esc(ev.title)}</h3>
-      <p class="chips">${ev.parts.map(p => `<span class="chip">P${p}</span>`).join("")}</p>
-      <dl class="meta"><div><dt>Preguntas</dt><dd>${n}</dd></div><div><dt>Respuestas</dt><dd>${ev.final ? "Ocultas" : "Con explicación"}</dd></div></dl>
-      ${ev.final ? `<p class="small">Nota definitiva · una sola oportunidad</p>` : ""}
-      <button class="btn ${ev.final ? "light" : ""} full" data-action="register" data-ev="${ev.id}">Presentar</button></article>`;
-  }).join("")}</section>`;
+  return `${back("Inicio", "home")}
+  <header class="page-title"><h1>Evaluaciones</h1><p class="lead">Necesitas tu nombre completo y tu ficha. Tu nota llega a tu instructora.</p></header>
+  <ul class="rows big">${Object.values(evaluations).map(ev => `<li><button class="row-link ${ev.final ? "eval-final" : ""}" data-action="register" data-ev="${ev.id}">
+    <span class="t"><strong>${esc(ev.title)}</strong><small>Partes ${ev.parts.length === 7 ? "1 a 7" : ev.parts.join(", ")} · ${flattenEvaluation(ev).length} preguntas${ev.final ? " · nota definitiva, una sola vez" : ""}</small></span>
+    <span class="go-label">Presentar ${icon("arrow")}</span></button></li>`).join("")}</ul>`;
 }
 
 function vRegister() {
   const ev = evaluations[state.ev];
   const f = state.fichas;
-  return `${crumbs(["Evaluaciones", "evals"], [ev.title])}
-  <section class="card narrow"><p class="eyebrow">${esc(ev.subtitle)} · ${flattenEvaluation(ev).length} preguntas</p><h1 class="h-md">${esc(ev.title)}</h1>
-    ${ev.final ? `<div class="alert warn"><strong>Esta es tu nota definitiva.</strong>Solo puedes presentarla una vez y no verás las respuestas correctas. Si se cierra la página, puedes continuar desde este mismo dispositivo.</div>` : ""}
+  return `${back("Evaluaciones", "evals")}
+  <section class="narrow"><h1 class="h-md">${esc(ev.title)}</h1><p class="muted">Partes ${ev.parts.length === 7 ? "1 a 7" : ev.parts.join(", ")} · ${flattenEvaluation(ev).length} preguntas</p>
+    ${ev.final ? `<div class="alert warn"><strong>Es tu nota definitiva.</strong>Solo puedes presentarla una vez y no verás las respuestas. Si se cierra la página, continúas desde este mismo dispositivo.</div>` : ""}
     <form id="register-form" class="form">
       <label>Nombre completo<input name="name" maxlength="60" required autocomplete="name" placeholder="Ej. Andrea Pérez Gómez"></label>
       <label>Ficha
@@ -230,39 +199,39 @@ function vQuiz() {
   const last = quiz.index === quiz.items.length - 1;
   const ok = chosen === it.answer;
   return `<section class="quiz">
-    <div class="quiz-top"><span class="mono">${esc(quiz.title).toUpperCase()} · PARTE ${pad(it.part)}</span><span class="mono clock">${icon("clock")} <span>${fmt(Date.now() - quiz.startedAt)}</span></span></div>
+    <div class="quiz-top"><span>${esc(quiz.title)} · Parte ${it.part}: ${esc(parts[it.part].title)}</span><span class="clock">${icon("clock")} <span>${fmt(Date.now() - quiz.startedAt)}</span></span></div>
     <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso"><span style="width:${pct}%"></span></div>
-    <p class="count">Pregunta ${quiz.index + 1} de ${quiz.items.length} · ${esc(parts[it.part].title)}</p>
-    <div class="card quiz-card">${itemPrompt(it)}${optionList(it, chosen ?? null, feedback, "answer")}
-      ${feedback && answered ? `<div class="alert ${ok ? "ok" : "bad"}"><strong>${ok ? "Correcto" : `Respuesta correcta: ${L(it.answer)}. ${esc(it.options[it.answer])}`}</strong>${esc(explanationOf(it.q))}${it.q.clue ? `<small>Pista: ${esc(it.q.clue)}</small>` : ""}</div>` : ""}
-      ${quiz.showTip ? `<p class="hint">${esc(parts[it.part].steps[1])}</p>` : ""}
-      <div class="pager in">
-        ${quiz.final && quiz.index > 0 ? `<button class="btn ghost sm" data-action="prev">${icon("back")} Anterior</button>` : `<button class="btn ghost sm" data-action="tip">${icon("bulb")} Estrategia</button>`}
-        <button class="btn" data-action="next" ${answered ? "" : "disabled"}>${last ? "Terminar" : "Siguiente"} ${icon("arrow")}</button></div>
-    </div></section>`;
+    <p class="count">Pregunta ${quiz.index + 1} de ${quiz.items.length}</p>
+    ${itemPrompt(it)}${optionList(it, chosen ?? null, feedback, "answer")}
+    ${feedback && answered ? `<div class="alert ${ok ? "ok" : "bad"}"><strong>${ok ? "Correcto" : `Era la ${L(it.answer)}: ${esc(it.options[it.answer])}`}</strong>${esc(explanationOf(it.q))}${it.q.clue ? `<small>Pista: ${esc(it.q.clue)}</small>` : ""}</div>` : ""}
+    ${quiz.showTip ? `<p class="hint">${icon("bulb")} ${esc(parts[it.part].steps[1])}</p>` : ""}
+    <div class="pager">
+      ${quiz.final && quiz.index > 0 ? `<button class="btn ghost" data-action="prev">${icon("back")} Anterior</button>` : `<button class="link" data-action="tip">${quiz.showTip ? "Ocultar ayuda" : "¿Cómo se resuelve?"}</button>`}
+      <button class="btn" data-action="next" ${answered ? "" : "disabled"}>${last ? "Terminar" : "Siguiente"} ${icon("arrow")}</button></div>
+  </section>`;
 }
 
 function vPracticeDone() {
   const r = state.r;
-  return `<section class="card narrow center"><p class="score">${r.correct}<span>/${r.total}</span></p><h1 class="h-md">Ejercicio terminado</h1><p class="muted">Repasa las explicaciones de lo que fallaste y vuelve a intentarlo cuando quieras.</p>
-    <div class="row center"><button class="btn" data-action="part" data-p="${state.p}">Volver a la parte ${state.p}</button><button class="btn ghost" data-action="evals">Evaluaciones</button></div></section>`;
+  return `<section class="narrow center"><p class="score">${r.correct}<span>/${r.total}</span></p><h1 class="h-md">Ejercicio terminado</h1><p class="muted">Repasa lo que fallaste y vuelve a intentarlo cuando quieras.</p>
+    <div class="row center"><button class="btn" data-action="part" data-p="${state.p}">Volver a la Parte ${state.p}</button><button class="link" data-action="evals">Ir a evaluaciones</button></div></section>`;
 }
 
 function vResult() {
   const r = state.r;
   const ev = evaluations[r.evaluation];
   const items = flattenEvaluation(ev);
-  return `<section class="card result">
-    <p class="eyebrow">${esc(ev.title)} · Ficha ${esc(r.ficha)}</p><h1 class="h-md">${esc(r.name)}</h1>
+  return `<section class="result">
+    <p class="muted">${esc(ev.title)} · Ficha ${esc(r.ficha)}</p><h1 class="h-md">${esc(r.name)}</h1>
     ${r.sync === "sent" ? `<div class="alert ok"><strong>Resultado enviado.</strong>Tu instructora ya puede verlo.</div>`
       : `<div class="alert bad"><strong>No se pudo enviar tu resultado.</strong>${esc(r.syncError || "")} Descarga el archivo y entrégaselo a tu instructora.<span class="row"><button class="btn sm ghost" data-action="csv">Descargar mi resultado</button><button class="btn sm" data-action="retry-send">Reintentar envío</button></span></div>`}
-    <dl class="stats"><div><dt>Nota</dt><dd>${r.percent}%</dd></div><div><dt>Correctas</dt><dd>${r.correct}/${r.total}</dd></div><div><dt>Tiempo</dt><dd>${fmt(r.duration * 1000)}</dd></div></dl>
-    <h2>Resultado por parte</h2><div class="by-part">${Object.entries(r.byPart).map(([p, s]) => `<div><span><b>${pad(p)}</b> ${esc(parts[p].title)}</span><div class="bar"><span style="width:${Math.round(100 * s.correct / s.total)}%"></span></div><strong>${s.correct}/${s.total}</strong></div>`).join("")}</div>
+    <dl class="stats"><div><dt>Nota</dt><dd>${r.percent}%</dd></div><div><dt>Correctas</dt><dd>${r.correct} de ${r.total}</dd></div><div><dt>Tiempo</dt><dd>${fmt(r.duration * 1000)}</dd></div></dl>
+    <h2>Por parte</h2><div class="by-part">${Object.entries(r.byPart).map(([p, s]) => `<div><span>Parte ${p} · ${esc(parts[p].title)}</span><div class="bar"><span style="width:${Math.round(100 * s.correct / s.total)}%"></span></div><strong>${s.correct}/${s.total}</strong></div>`).join("")}</div>
     ${!ev.final && r.missed.length ? `<h2>Para repasar</h2><ul class="review">${r.missed.map(m => {
       const it = items.filter(x => x.part === m.part)[m.question - 1];
-      return `<li><span class="chip">P${m.part}</span> ${esc(it.q.prompt || it.q.message || it.q.a || it.q.q || `Espacio (${it.q.gap})`)}<small>Correcta: ${L(it.answer)}. ${esc(it.options[it.answer])} — ${esc(explanationOf(it.q))}</small></li>`;
+      return `<li><strong>Parte ${m.part}:</strong> ${esc(it.q.prompt || it.q.message || it.q.a || it.q.q || `Espacio (${it.q.gap})`)}<small>Correcta: ${L(it.answer)}. ${esc(it.options[it.answer])}. ${esc(explanationOf(it.q))}</small></li>`;
     }).join("")}</ul>` : ""}
-    ${ev.final ? `<p class="muted">Esta es tu nota definitiva. En la evaluación final no se muestran las respuestas correctas.</p>` : ""}
+    ${ev.final ? `<p class="muted">En la evaluación final no se muestran las respuestas correctas.</p>` : ""}
     <div class="row"><button class="btn" data-action="home">Volver al inicio</button></div></section>`;
 }
 
