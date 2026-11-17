@@ -31,18 +31,18 @@ async function fetchAll(table, columns) {
   }
 }
 async function load() {
-  const legacy = await fetchAll("student_results", "id, student_name, group_name, completed_at, score_part1, score_part2, score_part3, total_correct, total_questions, percent, duration_seconds");
+  const legacy = await fetchAll("student_results", "id, student_name, group_name, completed_at, score_part1, score_part2, score_part3, total_correct, total_questions, percent, duration_seconds, missed");
   let modern = [];
   missingMigration = false;
   try {
-    modern = await fetchAll("assessment_results", "id, evaluation, student_name, ficha, completed_at, scores, total_correct, total_questions, percent, duration_seconds");
+    modern = await fetchAll("assessment_results", "id, evaluation, student_name, ficha, completed_at, scores, total_correct, total_questions, percent, duration_seconds, missed");
     const { data, error } = await client.from("fichas").select("code, program, active, created_at").order("code");
     if (error) throw error;
     fichas = data;
   } catch { missingMigration = true; fichas = []; }
   records = [
-    ...legacy.map(r => ({ id: r.id, evaluation: "eval1", name: r.student_name, ficha: r.group_name || "", date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: { 1: { correct: r.score_part1, total: 5 }, 2: { correct: r.score_part2, total: 5 }, 3: { correct: r.score_part3, total: 5 } } })),
-    ...modern.map(r => ({ id: r.id, evaluation: r.evaluation, name: r.student_name, ficha: r.ficha, date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: r.scores || {} }))
+    ...legacy.map(r => ({ id: r.id, evaluation: "eval1", name: r.student_name, ficha: r.group_name || "", date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: { 1: { correct: r.score_part1, total: 5 }, 2: { correct: r.score_part2, total: 5 }, 3: { correct: r.score_part3, total: 5 } }, missed: (r.missed || []).map(m => ({ part: Number(String(m.module).replace("part", "")), question: m.question })) })),
+    ...modern.map(r => ({ id: r.id, evaluation: r.evaluation, name: r.student_name, ficha: r.ficha, date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: r.scores || {}, missed: r.missed || [] }))
   ].sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -68,13 +68,39 @@ function renderTable() {
     b.setAttribute("aria-selected", String(k === filters.evaluation));
     b.querySelector("span").textContent = k ? byFicha.filter(r => r.evaluation === k).length : byFicha.length;
   });
-  document.getElementById("results-body").innerHTML = rows.length ? rows.map(r => `<tr>
-    <td><strong>${esc(r.name)}</strong><small>${esc(r.ficha ? `Ficha ${r.ficha}` : "Sin ficha")}</small></td>
-    <td>${EVAL_SHORT[r.evaluation]}</td>
-    <td><span class="grade ${r.percent >= 60 ? "pass" : "fail"}">${r.percent}%</span><small>${r.correct} de ${r.total} correctas</small></td>
-    <td class="parts-cell">${Object.entries(r.byPart).map(([p, s]) => `<span title="Parte ${p}">P${p}: ${s.correct}/${s.total}</span>`).join("")}</td>
-    <td>${new Date(r.date).toLocaleDateString("es-CO", { day: "numeric", month: "short" })}<small>${fmt(r.duration)}</small></td></tr>`).join("")
-    : `<tr><td colspan="5" class="empty">No hay resultados con estos filtros.</td></tr>`;
+  document.getElementById("results-body").innerHTML = rows.length ? rows.map(studentRow).join("")
+    : `<p class="empty">No hay resultados con estos filtros.</p>`;
+}
+
+
+// Texto de cada pregunta fallada, a partir del contenido del sitio
+function missedDetail(r) {
+  const ev = window.TyTContent?.evaluations?.[r.evaluation];
+  const items = ev && window.TyTEngine ? window.TyTEngine.flattenEvaluation(ev) : [];
+  return (r.missed || []).map(m => {
+    const it = items.filter(x => x.part === m.part)[m.question - 1];
+    if (!it) return { part: m.part, text: `Pregunta ${m.question}`, answer: "" };
+    const q = it.q;
+    return { part: m.part, text: q.prompt || q.message || q.a || q.q || `Espacio (${q.gap}) del texto “${it.section.title || ""}”`, answer: `${String.fromCharCode(65 + it.answer)}. ${it.options[it.answer]}` };
+  });
+}
+function studentRow(r) {
+  const fails = missedDetail(r);
+  const when = new Date(r.date);
+  return `<details class="student">
+    <summary>
+      <span class="s-name"><strong>${esc(r.name)}</strong><small>${esc(r.ficha ? `Ficha ${r.ficha}` : "Sin ficha")}</small></span>
+      <span class="s-eval">${EVAL_SHORT[r.evaluation]}</span>
+      <span class="grade ${r.percent >= 60 ? "pass" : "fail"}">${r.percent}%</span>
+      <span class="s-date">${when.toLocaleDateString("es-CO", { day: "numeric", month: "short" })}</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="s-body">
+      <p class="s-meta">${r.correct} de ${r.total} correctas · ${fmt(r.duration)} · ${when.toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short" })}</p>
+      <div class="s-parts">${Object.entries(r.byPart).map(([p, x]) => `<div><span>Parte ${p}</span><div class="bar"><span style="width:${Math.round(100 * x.correct / x.total)}%"></span></div><strong>${x.correct}/${x.total}</strong></div>`).join("")}</div>
+      ${fails.length ? `<p class="s-sub">Falló en ${fails.length} pregunta${fails.length === 1 ? "" : "s"}:</p><ul class="s-fails">${fails.map(f => `<li><span class="chip">P${f.part}</span> ${esc(f.text)}${f.answer ? `<small>Respuesta correcta: ${esc(f.answer)}</small>` : ""}</li>`).join("")}</ul>` : `<p class="s-sub ok">Respondió todo bien.</p>`}
+    </div>
+  </details>`;
 }
 
 function renderDashboard() {
@@ -93,7 +119,7 @@ function renderDashboard() {
       <div class="eval-tabs" role="tablist">${[["", "Todas"], ...Object.entries(EVAL_SHORT)].map(([k, v]) => `<button role="tab" data-eval-tab="${k}">${v}${k ? `<small>${EVAL_PARTS[k]}</small>` : ""}<span>0</span></button>`).join("")}</div>
       <div class="summary" id="summary"></div>
       <div class="table-head"><h2>Lista de aprendices</h2><button class="btn sm" id="csv">Descargar esta lista (Excel/CSV)</button></div>
-      <div class="table-wrap"><table class="results"><thead><tr><th>Aprendiz</th><th>Evaluación</th><th>Nota</th><th>Por parte</th><th>Fecha y tiempo</th></tr></thead><tbody id="results-body"></tbody></table></div>
+      <p class="muted small-note">Toca un aprendiz para ver en qué falló.</p><div class="students" id="results-body"></div>
     </section>` : `
     <section class="fichas">
       <p class="muted">Los aprendices eligen su ficha de esta lista antes de presentar. Solo ven las fichas <strong>activas</strong>. Desactivar una ficha no borra sus resultados.</p>

@@ -322,3 +322,33 @@ td.empty { padding: 28px 14px; text-align: center; color: var(--muted); }
 .state.on { background: var(--ok-bg); color: var(--ok); }
 .state.off { background: var(--soft-2); color: var(--muted); }
 .fichas .ficha-form { margin: 20px 0 24px; max-width: 860px; }
+
+/* lista desplegable de aprendices */
+.small-note { margin: -4px 0 12px; font-size: .9rem; }
+.students { border-top: 1px solid var(--line); }
+.student { border-bottom: 1px solid var(--line); }
+.student summary { display: grid; grid-template-columns: 1fr 120px 76px 70px 24px; align-items: center; gap: 12px; padding: 14px 8px; cursor: pointer; list-style: none; transition: background-color .15s; }
+.student summary::-webkit-details-marker { display: none; }
+.student summary:hover { background: var(--soft); }
+.s-name strong { display: block; }
+.s-name small, .s-date { color: var(--muted); font-size: .88rem; }
+.s-eval { color: var(--ink-2); font-size: .95rem; }
+.chev { width: 20px; height: 20px; color: var(--muted); transition: transform .2s ease; }
+.student[open] .chev { transform: rotate(180deg); }
+.student[open] summary { background: var(--soft); }
+.s-body { padding: 4px 8px 20px; }
+.s-meta { color: var(--muted); font-size: .9rem; margin: 10px 0 14px; }
+.s-parts { display: grid; gap: 8px; max-width: 420px; }
+.s-parts > div { display: grid; grid-template-columns: 64px 1fr 40px; align-items: center; gap: 10px; font-size: .92rem; }
+.s-parts .bar { margin: 0; }
+.s-parts strong { text-align: right; font-variant-numeric: tabular-nums; }
+.s-sub { margin: 16px 0 8px; font-weight: 700; }
+.s-sub.ok { color: var(--ok); }
+.s-fails { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.s-fails li { padding: 10px 12px; border-radius: var(--r); background: var(--bad-bg); font-size: .94rem; }
+.s-fails small { display: block; margin-top: 4px; color: var(--ok); font-weight: 700; }
+.students .empty { padding: 28px 8px; text-align: center; color: var(--muted); }
+@media (max-width: 600px) {
+  .student summary { grid-template-columns: 1fr 64px 24px; }
+  .s-eval, .s-date { display: none; }
+}
