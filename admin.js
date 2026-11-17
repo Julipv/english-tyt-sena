@@ -46,55 +46,67 @@ async function load() {
   ].sort((a, b) => b.date.localeCompare(a.date));
 }
 
+const EVAL_SHORT = { eval1: "Evaluación 1", eval2: "Evaluación 2", eval3: "Evaluación 3", final: "Final" };
+const EVAL_PARTS = { eval1: "Partes 1 a 3", eval2: "Partes 4 y 5", eval3: "Partes 6 y 7", final: "Partes 1 a 7" };
+let tab = "results";
 const filtered = () => records.filter(r =>
   (!filters.ficha || r.ficha === filters.ficha) && (!filters.evaluation || r.evaluation === filters.evaluation) &&
   (!filters.q || r.name.toLocaleLowerCase("es").includes(filters.q.toLocaleLowerCase("es"))));
+const avgOf = rs => rs.length ? Math.round(rs.reduce((s, r) => s + r.percent, 0) / rs.length) : null;
 
 function renderTable() {
   const rows = filtered();
-  const avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.percent, 0) / rows.length) : null;
-  document.getElementById("stats").innerHTML = `<div><span>Evaluaciones</span><strong>${rows.length}</strong></div><div><span>Promedio</span><strong>${avg === null ? "—" : `${avg}%`}</strong></div><div><span>Aprendices</span><strong>${new Set(rows.map(r => r.name.toLowerCase())).size}</strong></div>`;
-  // Promedio por evaluación para la ficha elegida (ignora el filtro de evaluación)
+  const avg = avgOf(rows);
+  const passed = rows.filter(r => r.percent >= 60).length;
+  const where = `${filters.ficha ? `Ficha <strong>${esc(filters.ficha)}</strong>` : "<strong>Todas las fichas</strong>"} · ${filters.evaluation ? `<strong>${EVAL_SHORT[filters.evaluation]}</strong>` : "<strong>todas las evaluaciones</strong>"}`;
+  document.getElementById("summary").innerHTML = rows.length
+    ? `<p>${where}</p><div class="sum-grid"><div><span>Presentaron</span><strong>${rows.length}</strong></div><div><span>Promedio</span><strong>${avg}%</strong></div><div><span>Aprobaron (60% o más)</span><strong>${passed} de ${rows.length}</strong></div></div>`
+    : `<p>${where}</p><p class="muted">Todavía no hay resultados aquí.</p>`;
   const byFicha = records.filter(r => !filters.ficha || r.ficha === filters.ficha);
-  document.getElementById("eval-avgs").innerHTML = Object.entries(EVALS).map(([k, v]) => {
-    const rs = byFicha.filter(r => r.evaluation === k);
-    return `<div><span>${v}</span><strong>${rs.length ? `${Math.round(rs.reduce((s, r) => s + r.percent, 0) / rs.length)}%` : "—"}</strong><span>${rs.length} presentada${rs.length === 1 ? "" : "s"}${filters.ficha ? ` · ficha ${esc(filters.ficha)}` : ""}</span></div>`;
-  }).join("");
+  document.querySelectorAll("[data-eval-tab]").forEach(b => {
+    const k = b.dataset.evalTab;
+    b.setAttribute("aria-selected", String(k === filters.evaluation));
+    b.querySelector("span").textContent = k ? byFicha.filter(r => r.evaluation === k).length : byFicha.length;
+  });
   document.getElementById("results-body").innerHTML = rows.length ? rows.map(r => `<tr>
-    <td><strong>${esc(r.name)}</strong></td><td>${esc(r.ficha || "—")}</td><td>${esc(EVALS[r.evaluation])}</td>
-    <td>${new Date(r.date).toLocaleString("es-CO")}</td>
-    <td>${Object.entries(r.byPart).map(([p, s]) => `<span class="chip" style="margin:1px">P${p} ${s.correct}/${s.total}</span>`).join(" ")}</td>
-    <td><strong>${r.correct}/${r.total} · ${r.percent}%</strong></td><td>${fmt(r.duration)}</td></tr>`).join("")
-    : `<tr><td colspan="7">No hay resultados con estos filtros.</td></tr>`;
+    <td><strong>${esc(r.name)}</strong><small>${esc(r.ficha ? `Ficha ${r.ficha}` : "Sin ficha")}</small></td>
+    <td>${EVAL_SHORT[r.evaluation]}</td>
+    <td><span class="grade ${r.percent >= 60 ? "pass" : "fail"}">${r.percent}%</span><small>${r.correct} de ${r.total} correctas</small></td>
+    <td class="parts-cell">${Object.entries(r.byPart).map(([p, s]) => `<span title="Parte ${p}">P${p}: ${s.correct}/${s.total}</span>`).join("")}</td>
+    <td>${new Date(r.date).toLocaleDateString("es-CO", { day: "numeric", month: "short" })}<small>${fmt(r.duration)}</small></td></tr>`).join("")
+    : `<tr><td colspan="5" class="empty">No hay resultados con estos filtros.</td></tr>`;
 }
 
 function renderDashboard() {
   const fichaOptions = [...new Set([...fichas.map(f => f.code), ...records.map(r => r.ficha).filter(Boolean)])].sort();
-  app.innerHTML = `<header class="page-head row between" style="align-items:flex-end"><div><h1>Resultados</h1></div>
-      <div class="row" style="margin:0"><button class="btn ghost sm" id="refresh">Actualizar</button><button class="btn sm" id="csv">Descargar CSV</button><button class="btn ghost sm" id="logout">Cerrar sesión</button></div></header>
-    <div class="help"><div><b>1 · Fichas</b>Agrega abajo las fichas que vas a evaluar. Los aprendices solo verán las activas.</div><div><b>2 · Filtra</b>Elige una ficha y una evaluación para ver solo esos resultados.</div><div><b>3 · Descarga</b>“Descargar CSV” baja exactamente lo que estás viendo.</div></div>
-    <div class="stats" id="eval-avgs"></div>
-    ${missingMigration ? `<div class="alert warn"><strong>Falta ejecutar la migración de la base de datos.</strong> Mientras tanto solo se ven los resultados de la Evaluación 1 y no se pueden administrar fichas. Ejecuta <code>supabase-migration-2026-11.sql</code> en Supabase.</div>` : ""}
-    <section class="card" style="margin-bottom:16px">
-      <div class="form" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin:0">
-        <label>Ficha<select id="f-ficha"><option value="">Todas</option>${fichaOptions.map(c => `<option ${c === filters.ficha ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
-        <label>Evaluación<select id="f-eval"><option value="">Todas</option>${Object.entries(EVALS).map(([k, v]) => `<option value="${k}" ${k === filters.evaluation ? "selected" : ""}>${v}</option>`).join("")}</select></label>
-        <label>Buscar aprendiz<input id="f-q" type="search" value="${esc(filters.q)}" placeholder="Nombre"></label>
+  app.innerHTML = `<header class="admin-head"><h1>Panel docente</h1>
+      <div class="row"><button class="btn ghost sm" id="refresh">Actualizar</button><button class="link" id="logout">Cerrar sesión</button></div></header>
+    <nav class="admin-tabs" role="tablist"><button role="tab" data-tab="results" aria-selected="${tab === "results"}">Resultados</button><button role="tab" data-tab="fichas" aria-selected="${tab === "fichas"}">Fichas <span>${fichas.length}</span></button></nav>
+    ${missingMigration ? `<div class="alert warn"><strong>Falta ejecutar la migración de la base de datos.</strong>Solo se ven los resultados de la Evaluación 1. Ejecuta supabase-migration-2026-11.sql en Supabase.</div>` : ""}
+    ${tab === "results" ? `
+    <section>
+      <div class="filters">
+        <label>1. Elige la ficha<select id="f-ficha"><option value="">Todas las fichas</option>${fichaOptions.map(c => `<option ${c === filters.ficha ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+        <label>Buscar aprendiz<input id="f-q" type="search" value="${esc(filters.q)}" placeholder="Escribe un nombre"></label>
       </div>
-      <div class="stats" id="stats"></div>
-      <div class="table-wrap"><table><thead><tr><th>Aprendiz</th><th>Ficha</th><th>Evaluación</th><th>Fecha</th><th>Por parte</th><th>Nota</th><th>Tiempo</th></tr></thead><tbody id="results-body"></tbody></table></div>
-    </section>
-    <section class="card"><h2>Fichas</h2><p class="muted">Los aprendices solo pueden elegir las fichas activas. Desactiva una ficha cuando termine su proceso; sus resultados se conservan.</p>
+      <p class="step-label">2. Elige la evaluación</p>
+      <div class="eval-tabs" role="tablist">${[["", "Todas"], ...Object.entries(EVAL_SHORT)].map(([k, v]) => `<button role="tab" data-eval-tab="${k}">${v}${k ? `<small>${EVAL_PARTS[k]}</small>` : ""}<span>0</span></button>`).join("")}</div>
+      <div class="summary" id="summary"></div>
+      <div class="table-head"><h2>Lista de aprendices</h2><button class="btn sm" id="csv">Descargar esta lista (Excel/CSV)</button></div>
+      <div class="table-wrap"><table class="results"><thead><tr><th>Aprendiz</th><th>Evaluación</th><th>Nota</th><th>Por parte</th><th>Fecha y tiempo</th></tr></thead><tbody id="results-body"></tbody></table></div>
+    </section>` : `
+    <section class="fichas">
+      <p class="muted">Los aprendices eligen su ficha de esta lista antes de presentar. Solo ven las fichas <strong>activas</strong>. Desactivar una ficha no borra sus resultados.</p>
       ${missingMigration ? "" : `<form id="ficha-form" class="form ficha-form">
-        <label>Número de ficha<input name="code" required maxlength="20" inputmode="numeric" placeholder="3230441"></label>
+        <label>Número de ficha<input name="code" required maxlength="20" inputmode="numeric" placeholder="Ej. 3230441"></label>
         <label>Programa (opcional)<input name="program" maxlength="80" placeholder="Ej. Análisis y desarrollo de software"></label>
-        <button class="btn" type="submit">Agregar</button></form>
-      <div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>Ficha</th><th>Programa</th><th>Resultados</th><th>Estado</th></tr></thead><tbody>
+        <button class="btn" type="submit">Agregar ficha</button></form>
+      <div class="table-wrap"><table><thead><tr><th>Ficha</th><th>Programa</th><th>Resultados</th><th>Estado</th></tr></thead><tbody>
         ${fichas.length ? fichas.map(f => `<tr><td><strong>${esc(f.code)}</strong></td><td>${esc(f.program || "—")}</td><td>${records.filter(r => r.ficha === f.code).length}</td>
-          <td><button class="btn sm ${f.active ? "ghost" : ""}" data-toggle="${esc(f.code)}" data-active="${f.active}">${f.active ? "Activa · desactivar" : "Inactiva · activar"}</button></td></tr>`).join("") : `<tr><td colspan="4">Aún no hay fichas.</td></tr>`}
+          <td><span class="state ${f.active ? "on" : "off"}">${f.active ? "Activa" : "Inactiva"}</span> <button class="link" data-toggle="${esc(f.code)}" data-active="${f.active}">${f.active ? "Desactivar" : "Activar"}</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Aún no hay fichas. Agrega la primera arriba.</td></tr>`}
       </tbody></table></div>`}
-    </section>`;
-  renderTable();
+    </section>`}`;
+  if (tab === "results") renderTable();
 }
 
 function downloadCsv() {
@@ -119,13 +131,14 @@ app.addEventListener("input", e => {
 });
 app.addEventListener("change", e => {
   if (e.target.id === "f-ficha") { filters.ficha = e.target.value; renderTable(); }
-  if (e.target.id === "f-eval") { filters.evaluation = e.target.value; renderTable(); }
 });
 app.addEventListener("click", async e => {
   const t = e.target.closest("button");
   if (!t) return;
   if (t.id === "refresh") { t.disabled = true; t.textContent = "Actualizando…"; return refresh(); }
   if (t.id === "csv") return downloadCsv();
+  if (t.dataset.tab) { tab = t.dataset.tab; return renderDashboard(); }
+  if (t.dataset.evalTab !== undefined) { filters.evaluation = t.dataset.evalTab; return renderTable(); }
   if (t.id === "logout") { await client.auth.signOut(); return renderLogin(); }
   if (t.dataset.toggle) {
     t.disabled = true;

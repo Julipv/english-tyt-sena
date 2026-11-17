@@ -281,3 +281,44 @@ input:focus, select:focus { outline: none; border-color: var(--brand); box-shado
 .pc-list .next .dot { border-color: var(--brand); color: var(--brand); }
 .pc-list em { margin-left: auto; font-style: normal; font-size: .8rem; font-weight: 700; color: var(--brand); white-space: nowrap; }
 .pc-note { margin: 12px 0 0; color: var(--muted); font-size: .82rem; }
+
+/* panel docente: pestañas, filtros y tabla clara */
+.admin-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+.admin-head h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.4rem); }
+.admin-head .row { margin: 0; }
+.admin-tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
+.admin-tabs button { position: relative; padding: 10px 16px; border: 0; background: none; color: var(--muted); font-weight: 700; font-size: 1rem; }
+.admin-tabs button span { margin-left: 6px; padding: 1px 8px; border-radius: 99px; background: var(--soft-2); font-size: .8rem; }
+.admin-tabs button[aria-selected="true"] { color: var(--ink); }
+.admin-tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--brand); }
+.filters { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 760px; }
+.filters label { display: grid; gap: 6px; font-weight: 700; font-size: .95rem; }
+@media (max-width: 640px) { .filters { grid-template-columns: 1fr; } }
+.step-label { margin: 20px 0 8px; font-weight: 700; font-size: .95rem; }
+.eval-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.eval-tabs button { display: grid; gap: 2px; justify-items: start; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: var(--r); background: #fff; text-align: left; font-weight: 700; transition: border-color .15s, background-color .15s; }
+.eval-tabs button:hover { border-color: var(--ink-2); }
+.eval-tabs button small { color: var(--muted); font-weight: 400; font-size: .82rem; }
+.eval-tabs button span { font: 700 1.3rem var(--head); color: var(--ink-2); }
+.eval-tabs button[aria-selected="true"] { border-color: var(--brand); background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand); }
+.eval-tabs button[aria-selected="true"] span { color: var(--brand); }
+@media (max-width: 760px) { .eval-tabs { grid-template-columns: repeat(2, 1fr); } }
+.summary { margin: 24px 0; padding: 18px 20px; border-radius: var(--r-lg); background: var(--soft); }
+.summary > p { margin: 0 0 10px; }
+.sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sum-grid span { display: block; color: var(--muted); font-size: .88rem; }
+.sum-grid strong { font: 700 1.6rem var(--head); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .sum-grid { grid-template-columns: 1fr; } }
+.table-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.table-head h2 { margin: 0; font-size: 1.25rem; }
+table.results td small, table.results td small { display: block; color: var(--muted); font-size: .82rem; }
+table.results td { vertical-align: middle; }
+.grade { display: inline-block; min-width: 56px; padding: 2px 10px; border-radius: 8px; font: 700 1.05rem var(--head); text-align: center; font-variant-numeric: tabular-nums; }
+.grade.pass { background: var(--ok-bg); color: var(--ok); }
+.grade.fail { background: var(--bad-bg); color: var(--bad); }
+.parts-cell span { display: inline-block; margin: 2px 6px 2px 0; padding: 1px 8px; border-radius: 6px; background: var(--soft); font-size: .82rem; white-space: nowrap; }
+td.empty { padding: 28px 14px; text-align: center; color: var(--muted); }
+.state { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: .82rem; font-weight: 700; margin-right: 8px; }
+.state.on { background: var(--ok-bg); color: var(--ok); }
+.state.off { background: var(--soft-2); color: var(--muted); }
+.fichas .ficha-form { margin: 20px 0 24px; max-width: 860px; }
