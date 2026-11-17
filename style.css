@@ -75,10 +75,6 @@ p { margin: 0 0 1em; }
 /* inicio */
 .hero { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; padding: 24px 0 64px; }
 .hl { color: var(--brand); }
-.preview { padding: 20px; background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 2px 4px rgb(18 36 27 / .04), 0 24px 48px -22px rgb(18 36 27 / .25); }
-.preview-top { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; }
-.preview .options { gap: 8px; }
-.preview .option { min-height: 44px; cursor: default; }
 @media (max-width: 860px) { .hero { grid-template-columns: 1fr; gap: 36px; padding-bottom: 40px; } }
 
 .route { max-width: 760px; }
@@ -268,3 +264,20 @@ input:focus, select:focus { outline: none; border-color: var(--brand); box-shado
 .toast.show { transform: translate(-50%, 0); visibility: visible; }
 .toast.error { background: var(--bad); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+
+/* panel "Tu avance" del inicio */
+.progress-card { padding: 22px; background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 2px 4px rgb(18 36 27 / .04), 0 24px 48px -22px rgb(18 36 27 / .22); }
+.pc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.pc-head h2 { margin: 0; font-size: 1.2rem; }
+.pc-head span { color: var(--muted); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.progress-card .bar { margin: 12px 0 14px; }
+.pc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.pc-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; color: var(--ink-2); transition: background-color .15s; }
+.pc-list button:hover { background: var(--soft); }
+.pc-list .dot { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-2); font: 700 .85rem var(--head); color: var(--muted); }
+.pc-list .done { color: var(--muted); }
+.pc-list .done .dot { background: var(--brand); border-color: var(--brand); color: #fff; }
+.pc-list .next { background: var(--brand-soft); color: var(--ink); font-weight: 700; }
+.pc-list .next .dot { border-color: var(--brand); color: var(--brand); }
+.pc-list em { margin-left: auto; font-style: normal; font-size: .8rem; font-weight: 700; color: var(--brand); white-space: nowrap; }
+.pc-note { margin: 12px 0 0; color: var(--muted); font-size: .82rem; }

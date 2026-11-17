@@ -5,6 +5,7 @@ const { normalizeName, flattenEvaluation, scoreAttempt, legacyPayload, assessmen
 const STORAGE_RESULTS = "englishChallengeResultsV1";
 const STORAGE_PROGRESS = "tytPracticeV2";
 const STORAGE_FINAL = "tytFinalInProgress";
+const STORAGE_SEEN = "tytSeenParts";
 const L = i => String.fromCharCode(65 + i);
 const BLOCKS = [
   { ev: "eval1", parts: [1, 2, 3], about: "Vocabulario, avisos y conversaciones cortas." },
@@ -82,20 +83,24 @@ const back = (label, action, extra = "") => `<button class="back" data-action="$
 // ───── vistas ─────
 function vHome() {
   const pending = read(STORAGE_FINAL, null);
+  const seen = read(STORAGE_SEEN, []);
+  const next = [1, 2, 3, 4, 5, 6, 7].find(n => !seen.includes(n));
+  const cta = !seen.length ? `<button class="btn" data-action="part" data-p="1">Empezar por la Parte 1 ${icon("arrow")}</button>`
+    : next ? `<button class="btn" data-action="part" data-p="${next}">Seguir con la Parte ${next} ${icon("arrow")}</button>`
+    : `<button class="btn" data-action="evals">Ir a las evaluaciones ${icon("arrow")}</button>`;
   return `<section class="hero">
     <div class="hero-copy">
       <h1>Aprende el inglés del <span class="hl">Saber TyT</span>, parte por parte.</h1>
       <p class="lead">La prueba tiene 7 partes. Aquí cada una se explica con ejemplos, y al terminar cada bloque presentas una evaluación con tu ficha.</p>
-      <div class="row"><button class="btn" data-action="part" data-p="1">Empezar por la Parte 1 ${icon("arrow")}</button><button class="link" data-action="evals">Ya estudié, ir a evaluaciones</button></div>
+      <div class="row">${cta}${next ? `<button class="link" data-action="evals">Ya estudié, ir a evaluaciones</button>` : ""}</div>
       ${pending ? `<div class="alert warn"><strong>Tienes la evaluación final en curso.</strong> <button class="link" data-action="resume-final">Continuar donde ibas</button></div>` : ""}
     </div>
-    <div class="preview" aria-hidden="true">
-      <div class="preview-top"><span>Parte 2 · Pregunta 3 de 5</span><span class="clock">${icon("clock")} 2:14</span></div>
-      <div class="bar"><span style="width:52%"></span></div>
-      <div class="sign-stage small">${sign({ kind: "warning", message: "Please keep your ticket until the end of the journey." })}</div>
-      <p class="label">¿Dónde verías este aviso?</p>
-      <div class="options"><div class="option dim"><span class="key">A</span>Hospital</div><div class="option right"><span class="key">B</span>Train station</div><div class="option dim"><span class="key">C</span>Pharmacy</div></div>
-    </div>
+    <aside class="progress-card" aria-label="Tu avance">
+      <div class="pc-head"><h2>Tu avance</h2><span>${seen.length} de 7 partes</span></div>
+      <div class="bar"><span style="width:${Math.round(seen.length / 7 * 100)}%"></span></div>
+      <ol class="pc-list">${Object.keys(parts).map(Number).map(n => `<li><button data-action="part" data-p="${n}" class="${seen.includes(n) ? "done" : n === next ? "next" : ""}"><span class="dot">${seen.includes(n) ? icon("check") : n}</span>${esc(parts[n].title)}${n === next ? `<em>Sigue aquí</em>` : ""}</button></li>`).join("")}</ol>
+      <p class="pc-note">Tu avance se guarda en este dispositivo.</p>
+    </aside>
   </section>
 
   <section class="route">
@@ -300,7 +305,12 @@ document.addEventListener("click", e => {
   if (!b) return;
   const a = b.dataset.action;
   if (a === "home" || a === "keys" || a === "evals") return go(a);
-  if (a === "part") { lessonPick = {}; return go("part", { p: Number(b.dataset.p) }); }
+  if (a === "part") {
+    const p = Number(b.dataset.p);
+    const seen = read(STORAGE_SEEN, []);
+    if (!seen.includes(p)) save(STORAGE_SEEN, [...seen, p]);
+    lessonPick = {}; return go("part", { p });
+  }
   if (a === "practice") {
     const part = Number(b.dataset.p), set = Number(b.dataset.s);
     return startQuiz({ kind: "practice", part, set, title: `Práctica ${set + 1}`, sections: [practiceSection(part, set)] });
