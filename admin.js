@@ -84,7 +84,7 @@ function renderDashboard() {
       <div class="stats" id="stats"></div>
       <div class="table-wrap"><table><thead><tr><th>Aprendiz</th><th>Ficha</th><th>Evaluación</th><th>Fecha</th><th>Por parte</th><th>Nota</th><th>Tiempo</th></tr></thead><tbody id="results-body"></tbody></table></div>
     </section>
-    <section class="card"><h2><span class="ic">🗂️</span>Fichas</h2><p class="muted">Los aprendices solo pueden elegir las fichas activas. Desactiva una ficha cuando termine su proceso; sus resultados se conservan.</p>
+    <section class="card"><p class="eyebrow">Administración</p><h2>Fichas</h2><p class="muted">Los aprendices solo pueden elegir las fichas activas. Desactiva una ficha cuando termine su proceso; sus resultados se conservan.</p>
       ${missingMigration ? "" : `<form id="ficha-form" class="form ficha-form">
         <label>Número de ficha<input name="code" required maxlength="20" inputmode="numeric" placeholder="3230441"></label>
         <label>Programa (opcional)<input name="program" maxlength="80" placeholder="Ej. Análisis y desarrollo de software"></label>
