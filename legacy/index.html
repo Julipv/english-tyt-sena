@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="Juego educativo interactivo para aprender las partes 1, 2 y 3 del módulo de Inglés Saber TyT.">
+  <title>English Challenge — Saber TyT</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" data-action="home" aria-label="English Challenge, inicio">
+        <span class="brand-mark" aria-hidden="true">EN</span>
+        <span>English <strong>Challenge</strong><small>Saber TyT · Parts 1–3</small></span>
+      </a>
+      <nav class="top-actions" aria-label="Navegación principal">
+        <button class="text-button" data-action="menu">Módulos</button>
+      </nav>
+    </header>
+    <main id="app" tabindex="-1"></main>
+    <input class="visually-hidden" type="file" id="results-import" accept=".csv,text/csv" multiple aria-label="Seleccionar archivos CSV de resultados">
+    <footer class="footer">
+      <span>Aprende a interpretar, no solo a traducir.</span>
+      <span>Contenido original · Tus resultados se envían al sistema de la clase al terminar.</span>
+    </footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase-config.js"></script>
+</body>
+</html>

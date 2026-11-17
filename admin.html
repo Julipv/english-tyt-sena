@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Panel privado de resultados y fichas.">
+  <link rel="icon" href="sena-logo.svg" type="image/svg+xml">
+  <script src="theme.js"></script>
+  <title>Panel docente · English TyT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" style="text-decoration:none"><img class="brand-logo" src="sena-logo.svg" alt="SENA"><span class="brand-text"><strong>Panel docente</strong><small>Resultados y fichas</small></span></a>
+    <div class="top-right"><a class="btn sm ghost" href="index.html">Ir al sitio</a><button id="theme-toggle" class="theme-btn" type="button" aria-label="Cambiar entre modo claro y oscuro" title="Modo claro / oscuro">◐</button></div>
+  </header>
+  <main id="admin-app" tabindex="-1"></main>
+  <footer class="footer">
+    <span class="watermark-text" aria-hidden="true">Ficha 3230441</span>
+    <div class="credits">
+      <img src="sena-logo.svg" alt="SENA">
+      <p><strong>English TyT · Módulo de inglés Saber TyT</strong></p>
+      <p>Desarrollado por <strong>Juliana Parra Vásquez, Laura Salazar, Samuel Salazar y Jhonatan Escudero</strong></p>
+      <p>Aprendices SENA · Ficha 3230441</p>
+      <p>© 2026 Todos los derechos reservados. Contenido original basado en el formato del examen Saber TyT del ICFES.</p>
+    </div>
+  </footer>
+  <img class="watermark" src="sena-logo.svg" alt="" aria-hidden="true">
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

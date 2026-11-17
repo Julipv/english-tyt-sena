@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f2ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1d2320" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Aprende las 7 partes del módulo de Inglés Saber TyT: explicaciones, práctica y evaluaciones por ficha para aprendices SENA.">
+  <link rel="icon" href="sena-logo.svg" type="image/svg+xml">
+  <script src="theme.js"></script>
+  <title>Saber TyT Inglés · SENA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" data-action="home" aria-label="Inicio">
+      <img class="brand-logo" src="sena-logo.svg" alt="SENA">
+      <span class="brand-text"><strong>English TyT</strong><small>Aprendices SENA</small></span>
+    </button>
+    <div class="top-right"><nav class="nav" aria-label="Principal">
+      <button data-action="home" data-nav="home">Inicio</button>
+      <button data-action="part" data-p="1" data-nav="part">Partes</button>
+      <button data-action="keys" data-nav="keys">Claves</button>
+      <button data-action="evals" data-nav="evals">Evaluaciones</button>
+    </nav><button id="theme-toggle" class="theme-btn" type="button" aria-label="Cambiar entre modo claro y oscuro" title="Modo claro / oscuro">◐</button></div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <footer class="footer">
+    <span class="watermark-text" aria-hidden="true">Ficha 3230441</span>
+    <div class="credits">
+      <img src="sena-logo.svg" alt="SENA">
+      <p><strong>English TyT · Módulo de inglés Saber TyT</strong></p>
+      <p>Desarrollado por <strong>Juliana Parra Vásquez, Laura Salazar, Samuel Salazar y Jhonatan Escudero</strong></p>
+      <p>Aprendices SENA · Ficha 3230441</p>
+      <p>© 2026 Todos los derechos reservados. Contenido original basado en el formato del examen Saber TyT del ICFES.</p>
+    </div>
+  </footer>
+  <img class="watermark" src="sena-logo.svg" alt="" aria-hidden="true">
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="content.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

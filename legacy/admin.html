@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="Panel privado para consultar y descargar los resultados de English Challenge.">
+  <title>Panel de resultados — English Challenge</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase-config.js"></script>
+  <script defer src="admin.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="English Challenge, ir a la actividad">
+        <span class="brand-mark" aria-hidden="true">EN</span>
+        <span>English <strong>Challenge</strong><small>Panel privado de resultados</small></span>
+      </a>
+      <a class="text-button" href="index.html">Volver a la actividad</a>
+    </header>
+    <main id="admin-app" tabindex="-1"></main>
+    <footer class="footer">
+      <span>Resultados de la evaluación del grupo.</span>
+      <span>Solo las cuentas autorizadas pueden consultar esta página.</span>
+    </footer>
+  </div>
+</body>
+</html>

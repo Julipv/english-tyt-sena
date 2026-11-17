@@ -1,0 +1,601 @@
+{
+ "evaluation": {
+  "part1": {
+   "bank": [
+    "sunscreen",
+    "canoe",
+    "tongs",
+    "puzzle",
+    "diary",
+    "waterfall",
+    "kettle",
+    "backpack"
+   ],
+   "questions": [
+    {
+     "prompt": "You spread this cream on your skin before spending time in strong sunlight.",
+     "answer": "sunscreen",
+     "keywords": [
+      "cream",
+      "skin",
+      "strong sunlight"
+     ],
+     "explanation": "Sunscreen protege la piel de los rayos del sol."
+    },
+    {
+     "prompt": "A small narrow boat that moves through water with a paddle is a ____.",
+     "answer": "canoe",
+     "keywords": [
+      "small boat",
+      "water",
+      "paddle"
+     ],
+     "explanation": "A canoe is a small boat that is moved with a paddle."
+    },
+    {
+     "prompt": "A cook uses this two-armed tool to pick up hot pieces of food.",
+     "answer": "tongs",
+     "keywords": [
+      "two-armed tool",
+      "hot food"
+     ],
+     "explanation": "Tongs permiten sujetar alimentos calientes sin tocarlos con las manos."
+    },
+    {
+     "prompt": "You put many small pieces together to make the complete picture in this game.",
+     "answer": "puzzle",
+     "keywords": [
+      "small pieces",
+      "complete picture"
+     ],
+     "explanation": "Un puzzle se resuelve uniendo piezas para formar una imagen."
+    },
+    {
+     "prompt": "People write personal thoughts or daily events in this book.",
+     "answer": "diary",
+     "keywords": [
+      "write",
+      "personal thoughts",
+      "daily events"
+     ],
+     "explanation": "A diary is a personal record of thoughts or events."
+    }
+   ]
+  },
+  "part2": [
+   {
+    "message": "PLEASE WAIT FOR YOUR GROUP BEFORE ENTERING THE PLANETARIUM.",
+    "kind": "notice",
+    "icon": "🪐",
+    "places": [
+     "Post office",
+     "Greenhouse",
+     "Bus depot",
+     "Planetarium"
+    ],
+    "answer": 3,
+    "clue": "A planetarium welcomes groups to a show about space.",
+    "feedback": "El planetario organiza el ingreso de los grupos antes de una función sobre el espacio."
+   },
+   {
+    "message": "PLEASE PLACE YOUR RETURNS IN THE BLUE BOX.",
+    "kind": "info",
+    "icon": "📬",
+    "places": [
+     "Post office",
+     "Art classroom",
+     "Swimming pool",
+     "Restaurant"
+    ],
+    "answer": 0,
+    "clue": "Returns placed in a box are handled as part of a delivery service.",
+    "feedback": "Una oficina postal recibe cartas y paquetes que se devuelven."
+   },
+   {
+    "message": "KEEP THE WALKWAY CLEAR FOR THE PARADE.",
+    "kind": "warning",
+    "icon": "🥁",
+    "places": [
+     "Computer lab",
+     "Doctor's office",
+     "Town square",
+     "Train cabin"
+    ],
+    "answer": 2,
+    "clue": "A parade needs an open route for people to walk through.",
+    "feedback": "La plaza principal suele ser el recorrido de desfiles y necesita espacio libre."
+   },
+   {
+    "message": "PLEASE LABEL YOUR LUNCHBOX BEFORE PLACING IT ON THE SHELF.",
+    "kind": "notice",
+    "icon": "🍱",
+    "places": [
+     "Cinema",
+     "Day-care centre",
+     "Garden centre",
+     "Bus terminal"
+    ],
+    "answer": 1,
+    "clue": "Lunchboxes are stored during the day in a place that cares for children.",
+    "feedback": "En un centro infantil guardan las loncheras de los niños en estantes compartidos."
+   },
+   {
+    "message": "PLEASE RETURN YOUR RENTED SKATES BEFORE CLOSING.",
+    "kind": "info",
+    "icon": "⛸️",
+    "places": [
+     "Flower shop",
+     "Airport",
+     "Bookshop",
+     "Ice rink"
+    ],
+    "answer": 3,
+    "clue": "Skates are special footwear used on ice.",
+    "feedback": "Una pista de hielo suele alquilar patines y recibirlos al final de la visita."
+   }
+  ],
+  "part3": [
+   {
+    "a": "Where did you leave the sketchbook?",
+    "b": "________",
+    "options": [
+     "On the table near the window.",
+     "At half past four.",
+     "Because it was raining."
+    ],
+    "answer": 0,
+    "intent": "WH question · lugar",
+    "explanation": "Where pregunta en qué lugar; la respuesta ubica el cuaderno."
+   },
+   {
+    "a": "Could you send me the recipe when you have a moment?",
+    "b": "________",
+    "options": [
+     "Sure, I'll message it tonight.",
+     "It's made with tomatoes.",
+     "At the kitchen table."
+    ],
+    "answer": 0,
+    "intent": "Solicitud · respuesta",
+    "explanation": "La persona solicita que le envíen algo; aceptar y decir cuándo es apropiado."
+   },
+   {
+    "a": "Is the outdoor concert still happening this evening?",
+    "b": "________",
+    "options": [
+     "Yes, the weather looks clear now.",
+     "Beside the town hall.",
+     "A very loud guitar."
+    ],
+    "answer": 0,
+    "intent": "Yes/No question · confirmación",
+    "explanation": "Is it happening? espera confirmar si el concierto se realizará o no."
+   },
+   {
+    "a": "Thanks for saving a seat for me.",
+    "b": "________",
+    "options": [
+     "No problem. I'm glad you made it.",
+     "It starts at seven.",
+     "The seats are numbered."
+    ],
+    "answer": 0,
+    "intent": "Agradecimiento",
+    "explanation": "La persona agradece un favor; “No problem” responde amablemente."
+   },
+   {
+    "a": "Why is the classroom door open?",
+    "b": "________",
+    "options": [
+     "The room needs some fresh air.",
+     "In the main building.",
+     "It opens outwards."
+    ],
+    "answer": 0,
+    "intent": "WH question · razón",
+    "explanation": "Why pide una razón; la respuesta explica el motivo."
+   }
+  ]
+ },
+ "practice": {
+  "part1": [
+   {
+    "bank": [
+     "telescope",
+     "whisk",
+     "lighthouse",
+     "apron",
+     "seedling",
+     "necklace",
+     "cushion",
+     "measuring cup"
+    ],
+    "questions": [
+     {
+      "prompt": "You look through this to see the moon and distant stars more clearly.",
+      "answer": "telescope",
+      "keywords": [
+       "look through",
+       "moon",
+       "distant stars"
+      ],
+      "explanation": "Un telescope amplía objetos lejanos del cielo; las otras opciones no sirven para observar estrellas."
+     },
+     {
+      "prompt": "A cook uses this wire tool to mix eggs quickly in a bowl.",
+      "answer": "whisk",
+      "keywords": [
+       "cook",
+       "wire tool",
+       "mix eggs"
+      ],
+      "explanation": "Un whisk mezcla ingredientes con sus alambres delgados."
+     },
+     {
+      "prompt": "This tall building sends a light across the sea to guide boats at night.",
+      "answer": "lighthouse",
+      "keywords": [
+       "light",
+       "sea",
+       "boats"
+      ],
+      "explanation": "Un lighthouse ayuda a orientar las embarcaciones cerca de la costa."
+     },
+     {
+      "prompt": "You wear this over your clothes while preparing food to keep them clean.",
+      "answer": "apron",
+      "keywords": [
+       "wear",
+       "over your clothes",
+       "preparing food"
+      ],
+      "explanation": "Un apron cubre la ropa mientras se cocina o se realizan otras tareas."
+     },
+     {
+      "prompt": "A very young plant that has just started to grow is called this.",
+      "answer": "seedling",
+      "keywords": [
+       "young plant",
+       "started to grow"
+      ],
+      "explanation": "Seedling es una planta pequeña en sus primeras etapas de crecimiento."
+     }
+    ]
+   },
+   {
+    "bank": [
+     "compass",
+     "thermos",
+     "binoculars",
+     "calendar",
+     "screwdriver",
+     "diary",
+     "fountain",
+     "suitcase"
+    ],
+    "questions": [
+     {
+      "prompt": "Hikers use this instrument to find north when they are away from roads.",
+      "answer": "compass",
+      "keywords": [
+       "hikers",
+       "find north"
+      ],
+      "explanation": "La aguja de un compass indica direcciones y ayuda a orientarse."
+     },
+     {
+      "prompt": "This container keeps tea warm for several hours after you pour it in.",
+      "answer": "thermos",
+      "keywords": [
+       "container",
+       "keeps tea warm"
+      ],
+      "explanation": "Un thermos conserva la temperatura de las bebidas."
+     },
+     {
+      "prompt": "You hold this with both hands to watch birds far away through two lenses.",
+      "answer": "binoculars",
+      "keywords": [
+       "both hands",
+       "birds far away",
+       "two lenses"
+      ],
+      "explanation": "Binoculars tienen dos lentes y permiten observar objetos lejanos."
+     },
+     {
+      "prompt": "This printed chart helps you see the days and months of the year.",
+      "answer": "calendar",
+      "keywords": [
+       "days",
+       "months",
+       "year"
+      ],
+      "explanation": "Un calendar organiza los días y meses del año."
+     },
+     {
+      "prompt": "A repair worker turns this tool to tighten or loosen a screw.",
+      "answer": "screwdriver",
+      "keywords": [
+       "tool",
+       "tighten",
+       "screw"
+      ],
+      "explanation": "Un screwdriver está diseñado para girar tornillos."
+     }
+    ]
+   }
+  ],
+  "part2": [
+   [
+    {
+     "message": "FEEDING TIME IS AT 3:30. PLEASE KEEP HANDS OUT OF THE TANK.",
+     "kind": "notice",
+     "icon": "🐠",
+     "places": [
+      "Art studio",
+      "Bus station",
+      "Aquarium",
+      "Bakery"
+     ],
+     "answer": 2,
+     "clue": "“Tank” y la hora de alimentar animales señalan un espacio con vida acuática.",
+     "feedback": "Los acuarios tienen tanques con animales; el aviso también explica una regla para protegerlos."
+    },
+    {
+     "message": "RETURN YOUR AUDIO GUIDE AT THE EXIT.",
+     "kind": "info",
+     "icon": "🎧",
+     "places": [
+      "Museum",
+      "Pharmacy",
+      "Farm",
+      "Sports centre"
+     ],
+     "answer": 0,
+     "clue": "Un audio guide acompaña a las personas mientras recorren una exposición.",
+     "feedback": "Los visitantes suelen pedir y devolver guías de audio en un museo."
+    },
+    {
+     "message": "PLEASE LEAVE YOUR WET PAINTINGS ON THE DRYING RACK.",
+     "kind": "notice",
+     "icon": "🎨",
+     "places": [
+      "Airport gate",
+      "Restaurant",
+      "Garden shop",
+      "Art classroom"
+     ],
+     "answer": 3,
+     "clue": "La pintura húmeda y una rejilla para secar son pistas del tipo de actividad.",
+     "feedback": "En un salón de arte se pintan trabajos y se dejan secar antes de guardarlos."
+    },
+    {
+     "message": "SEEDS AND GARDEN TOOLS MUST BE CLEANED BEFORE STORAGE.",
+     "kind": "notice",
+     "icon": "🌿",
+     "places": [
+      "Cinema",
+      "Community garden",
+      "Hotel lobby",
+      "Computer lab"
+     ],
+     "answer": 1,
+     "clue": "El aviso menciona semillas y herramientas para cuidar plantas.",
+     "feedback": "Un jardín comunitario utiliza semillas y herramientas que deben limpiarse y guardarse."
+    },
+    {
+     "message": "PLEASE DO NOT TOUCH THE GLASS DISPLAY.",
+     "kind": "warning",
+     "icon": "🪸",
+     "places": [
+      "Train platform",
+      "Bakery kitchen",
+      "Aquarium exhibit",
+      "Gym changing room"
+     ],
+     "answer": 2,
+     "clue": "Una vitrina de vidrio protege algo que las personas observan.",
+     "feedback": "Una exhibición de acuario puede tener paneles de vidrio que se deben mantener limpios."
+    }
+   ],
+   [
+    {
+     "message": "SOUND CHECK IN PROGRESS. PLEASE USE THE SIDE DOOR.",
+     "kind": "notice",
+     "icon": "🎙️",
+     "places": [
+      "Post office",
+      "Recording studio",
+      "Swimming pool",
+      "Bookshop"
+     ],
+     "answer": 1,
+     "clue": "Un sound check se realiza para probar micrófonos e instrumentos.",
+     "feedback": "Los estudios de grabación hacen pruebas de sonido antes de comenzar a grabar."
+    },
+    {
+     "message": "CHILDREN MUST STAY WITH AN ADULT ON THIS TRAIL.",
+     "kind": "warning",
+     "icon": "🥾",
+     "places": [
+      "Shopping centre",
+      "Bus depot",
+      "Kitchen",
+      "Nature reserve"
+     ],
+     "answer": 3,
+     "clue": "Un trail es una ruta para caminar, normalmente en un entorno natural.",
+     "feedback": "En una reserva natural, los niños deben permanecer acompañados durante el recorrido."
+    },
+    {
+     "message": "PLACE USED PAINTBRUSHES IN THE WATER JAR.",
+     "kind": "notice",
+     "icon": "🖌️",
+     "places": [
+      "Art classroom",
+      "Train station",
+      "Bakery",
+      "Hotel room"
+     ],
+     "answer": 0,
+     "clue": "Los pinceles usados y un frasco con agua aparecen después de pintar.",
+     "feedback": "El salón de arte es el lugar donde se usan y limpian los pinceles."
+    },
+    {
+     "message": "COLLECT YOUR PRINTS AFTER THE GREEN LIGHT APPEARS.",
+     "kind": "info",
+     "icon": "📷",
+     "places": [
+      "Library",
+      "Farm",
+      "Photo lab",
+      "Cafeteria"
+     ],
+     "answer": 2,
+     "clue": "Prints y una luz que indica que se puede recoger un pedido sugieren fotografías.",
+     "feedback": "Un laboratorio fotográfico prepara impresiones para que sus clientes las recojan."
+    },
+    {
+     "message": "PLEASE WASH YOUR HANDS BEFORE HANDLING THE PRODUCE.",
+     "kind": "notice",
+     "icon": "🍎",
+     "places": [
+      "Cinema entrance",
+      "Farmers' market stall",
+      "Computer room",
+      "Bus stop"
+     ],
+     "answer": 1,
+     "clue": "Produce se refiere a frutas y verduras frescas.",
+     "feedback": "En un puesto de mercado se manipulan frutas y verduras, por eso se pide higiene."
+    }
+   ]
+  ],
+  "part3": [
+   [
+    {
+     "a": "What did the chef add to the soup?",
+     "b": "________",
+     "options": [
+      "A little more pepper.",
+      "At the front door.",
+      "Because it was Tuesday."
+     ],
+     "answer": 0,
+     "intent": "WH question · cosa",
+     "explanation": "What pregunta por una cosa; “A little more pepper” indica qué agregó el chef."
+    },
+    {
+     "a": "Could you hold this ladder while I fix the sign?",
+     "b": "________",
+     "options": [
+      "Of course. Tell me when you're ready.",
+      "It's made of metal.",
+      "At the hardware store."
+     ],
+     "answer": 0,
+     "intent": "Solicitud · ayuda",
+     "explanation": "La persona solicita ayuda; aceptar y ofrecer disponibilidad responde de forma natural."
+    },
+    {
+     "a": "How did your team travel to the island?",
+     "b": "________",
+     "options": [
+      "By ferry, early this morning.",
+      "My cousin chose the blue one.",
+      "Because the weather changed."
+     ],
+     "answer": 0,
+     "intent": "WH question · manera",
+     "explanation": "How pregunta cómo viajaron; “By ferry” describe el medio de transporte."
+    },
+    {
+     "a": "Are the new seats comfortable?",
+     "b": "________",
+     "options": [
+      "Yes, they have soft cushions.",
+      "Near the ticket desk.",
+      "They arrived on Monday."
+     ],
+     "answer": 0,
+     "intent": "Yes/No question · descripción",
+     "explanation": "Are the seats…? espera una respuesta afirmativa o negativa sobre su comodidad."
+    },
+    {
+     "a": "I really appreciate your help with the project.",
+     "b": "________",
+     "options": [
+      "I'm glad I could help.",
+      "The project is on the second floor.",
+      "It took three weeks."
+     ],
+     "answer": 0,
+     "intent": "Agradecimiento",
+     "explanation": "La persona expresa gratitud; “I'm glad I could help” es una respuesta amable."
+    }
+   ],
+   [
+    {
+     "a": "When will the science exhibition open?",
+     "b": "________",
+     "options": [
+      "At ten o'clock on Saturday.",
+      "In the blue display case.",
+      "Because the room is large."
+     ],
+     "answer": 0,
+     "intent": "WH question · tiempo",
+     "explanation": "When pregunta cuándo; la respuesta indica una hora y un día."
+    },
+    {
+     "a": "Would you like to try a piece of this mango cake?",
+     "b": "________",
+     "options": [
+      "Yes, please. It smells delicious.",
+      "At the end of the street.",
+      "I baked it yesterday."
+     ],
+     "answer": 0,
+     "intent": "Invitación · ofrecimiento",
+     "explanation": "La persona ofrece comida; aceptar amablemente es una respuesta apropiada."
+    },
+    {
+     "a": "Who designed the poster for the festival?",
+     "b": "________",
+     "options": [
+      "Our art club did.",
+      "Next Thursday afternoon.",
+      "With a blue marker."
+     ],
+     "answer": 0,
+     "intent": "WH question · persona",
+     "explanation": "Who pregunta quién realizó el diseño; la respuesta identifica al grupo."
+    },
+    {
+     "a": "Did you remember to water the balcony plants?",
+     "b": "________",
+     "options": [
+      "Yes, I watered them before breakfast.",
+      "They are beside the window.",
+      "Because the pots are green."
+     ],
+     "answer": 0,
+     "intent": "Yes/No question · pasado",
+     "explanation": "Did you remember…? pregunta si se realizó la acción; “Yes” responde y agrega cuándo."
+    },
+    {
+     "a": "The printer has stopped working again.",
+     "b": "________",
+     "options": [
+      "I can check the paper tray for you.",
+      "It printed twelve pages.",
+      "At the copy shop downtown."
+     ],
+     "answer": 0,
+     "intent": "Comentario · ofrecer ayuda",
+     "explanation": "Ante un problema con la impresora, ofrecer revisar una posible causa es una respuesta útil."
+    }
+   ]
+  ]
+ }
+}
