@@ -2,3 +2,5 @@ publicar/
 # Material del ICFES con derechos reservados: no se publica
 *.pdf
 *.docx
+# Generado por tools/publicar.js (contiene las respuestas)
+supabase-claves.sql

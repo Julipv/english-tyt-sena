@@ -1,8 +1,7 @@
 "use strict";
 const { parts, englishKeys, practice, evaluations } = window.TyTContent;
-const { normalizeName, flattenEvaluation, scoreAttempt, legacyPayload, assessmentPayload } = window.TyTEngine;
+const { normalizeName, flattenEvaluation, scoreAttempt } = window.TyTEngine;
 
-const STORAGE_RESULTS = "englishChallengeResultsV1";
 const STORAGE_PROGRESS = "tytPracticeV2";
 const STORAGE_FINAL = "tytFinalInProgress";
 const STORAGE_SEEN = "tytSeenParts";
@@ -199,7 +198,8 @@ function vQuiz() {
   const it = quiz.items[quiz.index];
   const chosen = quiz.selections[quiz.index];
   const answered = chosen != null;
-  const feedback = !quiz.final;
+  // Las evaluaciones no traen las respuestas (las califica el servidor): solo la práctica muestra si acertaste
+  const feedback = quiz.kind === "practice";
   const pct = Math.round(quiz.index / quiz.items.length * 100);
   const last = quiz.index === quiz.items.length - 1;
   const ok = chosen === it.answer;
@@ -211,7 +211,7 @@ function vQuiz() {
     ${feedback && answered ? `<div class="alert ${ok ? "ok" : "bad"}"><strong>${ok ? "Correcto" : `Era la ${L(it.answer)}: ${esc(it.options[it.answer])}`}</strong>${esc(explanationOf(it.q))}${it.q.clue ? `<small>Pista: ${esc(it.q.clue)}</small>` : ""}</div>` : ""}
     ${quiz.showTip ? `<p class="hint">${icon("bulb")} ${esc(parts[it.part].steps[1])}</p>` : ""}
     <div class="pager">
-      ${quiz.final && quiz.index > 0 ? `<button class="btn ghost" data-action="prev">${icon("back")} Anterior</button>` : `<button class="link" data-action="tip">${quiz.showTip ? "Ocultar ayuda" : "¿Cómo se resuelve?"}</button>`}
+      ${quiz.kind === "eval" && quiz.index > 0 ? `<button class="btn ghost" data-action="prev">${icon("back")} Anterior</button>` : `<button class="link" data-action="tip">${quiz.showTip ? "Ocultar ayuda" : "¿Cómo se resuelve?"}</button>`}
       <button class="btn" data-action="next" ${answered ? "" : "disabled"}>${last ? "Terminar" : "Siguiente"} ${icon("arrow")}</button></div>
   </section>`;
 }
@@ -226,15 +226,16 @@ function vResult() {
   const r = state.r;
   const ev = evaluations[r.evaluation];
   const items = flattenEvaluation(ev);
-  return `<section class="result">
-    <p class="muted">${esc(ev.title)} · Ficha ${esc(r.ficha)}</p><h1 class="h-md">${esc(r.name)}</h1>
-    ${r.sync === "sent" ? `<div class="alert ok"><strong>Resultado enviado.</strong>Tu instructora ya puede verlo.</div>`
-      : `<div class="alert bad"><strong>No se pudo enviar tu resultado.</strong>${esc(r.syncError || "")} Descarga el archivo y entrégaselo a tu instructora.<span class="row"><button class="btn sm ghost" data-action="csv">Descargar mi resultado</button><button class="btn sm" data-action="retry-send">Reintentar envío</button></span></div>`}
+  const head = `<p class="muted">${esc(ev.title)} · Ficha ${esc(r.ficha)}</p><h1 class="h-md">${esc(r.name)}</h1>`;
+  if (r.sync !== "sent") return `<section class="result">${head}
+    <div class="alert bad"><strong>No se pudo enviar tu evaluación.</strong>${esc(r.syncError || "")} No cierres esta página: revisa tu internet y reintenta.<span class="row"><button class="btn sm" data-action="retry-send">Reintentar envío</button></span></div></section>`;
+  return `<section class="result">${head}
+    <div class="alert ok"><strong>Resultado enviado.</strong>Tu instructora ya puede verlo.</div>
     <dl class="stats"><div><dt>Nota</dt><dd>${r.percent}%</dd></div><div><dt>Correctas</dt><dd>${r.correct} de ${r.total}</dd></div><div><dt>Tiempo</dt><dd>${fmt(r.duration * 1000)}</dd></div></dl>
     <h2>Por parte</h2><div class="by-part">${Object.entries(r.byPart).map(([p, s]) => `<div><span>Parte ${p} · ${esc(parts[p].title)}</span><div class="bar"><span style="width:${Math.round(100 * s.correct / s.total)}%"></span></div><strong>${s.correct}/${s.total}</strong></div>`).join("")}</div>
     ${!ev.final && r.missed.length ? `<h2>Para repasar</h2><ul class="review">${r.missed.map(m => {
       const it = items.filter(x => x.part === m.part)[m.question - 1];
-      return `<li><strong>Parte ${m.part}:</strong> ${esc(it.q.prompt || it.q.message || it.q.a || it.q.q || `Espacio (${it.q.gap})`)}<small>Correcta: ${L(it.answer)}. ${esc(it.options[it.answer])}. ${esc(explanationOf(it.q))}</small></li>`;
+      return `<li><strong>Parte ${m.part}:</strong> ${esc(it.q.prompt || it.q.message || it.q.a || it.q.q || `Espacio (${it.q.gap})`)}<small>Correcta: ${L(m.answer)}. ${esc(it.options[m.answer])}. ${esc(m.explanation)}</small></li>`;
     }).join("")}</ul>` : ""}
     ${ev.final ? `<p class="muted">En la evaluación final no se muestran las respuestas correctas.</p>` : ""}
     <div class="row"><button class="btn" data-action="home">Volver al inicio</button></div></section>`;
@@ -263,32 +264,33 @@ async function finishQuiz() {
   }
   if (quiz.finishing) return;
   quiz.finishing = true;
-  const ev = evaluations[quiz.evId];
   const r = {
-    ...scoreAttempt(ev, quiz.selections), evaluation: ev.id, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    name: quiz.student.name, ficha: quiz.student.ficha, date: new Date().toISOString(), duration: Math.round((Date.now() - quiz.startedAt) / 1000)
+    evaluation: quiz.evId, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, selections: quiz.selections.slice(),
+    name: quiz.student.name, ficha: quiz.student.ficha, duration: Math.round((Date.now() - quiz.startedAt) / 1000)
   };
-  const all = read(STORAGE_RESULTS, []); all.push(r); save(STORAGE_RESULTS, all);
-  if (ev.final) { drop(STORAGE_FINAL); save(`tytFinalDone:${r.ficha}:${normalizeName(r.name)}`, true); }
   await sendResult(r);
   quiz = null;
   go("result", { r });
 }
+// El servidor califica (submit_evaluation): aquí no hay respuestas correctas que se puedan alterar
 async function sendResult(r) {
   try {
-    const legacy = r.evaluation === "eval1";
-    const { error } = await db().from(legacy ? "student_results" : "assessment_results").insert(legacy ? legacyPayload(r, r.ficha) : assessmentPayload(r, r.ficha));
-    if (error && error.code !== "23505") throw new Error(error.message);
-    if (error) { r.sync = "failed"; r.syncError = "Ya hay una evaluación final registrada con tu nombre y ficha."; return; }
-    r.sync = "sent"; r.syncError = "";
+    const { data, error } = await db().rpc("submit_evaluation", { p_id: r.id, p_evaluation: r.evaluation, p_name: r.name, p_ficha: r.ficha, p_selections: r.selections, p_duration: r.duration });
+    if (error?.code === "23505") { drop(STORAGE_FINAL); throw new Error("Ya hay una evaluación final registrada con tu nombre y ficha."); }
+    if (error) throw new Error(error.message);
+    Object.assign(r, data, { sync: "sent", syncError: "" });
+    // La final en curso se borra solo cuando el servidor la recibió
+    if (r.evaluation === "final") { drop(STORAGE_FINAL); save(`tytFinalDone:${r.ficha}:${normalizeName(r.name)}`, true); }
   } catch (e) { r.sync = "failed"; r.syncError = e.message; }
 }
-function downloadCsv(r) {
-  const cell = v => `"${String(/^[\s]*[=+\-@]/.test(String(v)) ? `'${v}` : v).replace(/"/g, '""')}"`;
-  const rows = [["ID", "Evaluación", "Nombre", "Ficha", "Fecha", "Correctas", "Total", "Porcentaje", "Tiempo (seg)"], [r.id, r.evaluation, r.name, r.ficha, r.date, r.correct, r.total, r.percent, r.duration]];
-  const url = URL.createObjectURL(new Blob(["﻿" + rows.map(x => x.map(cell).join(";")).join("\r\n")], { type: "text/csv;charset=utf-8" }));
-  const a = Object.assign(document.createElement("a"), { href: url, download: `resultado-${r.evaluation}-${normalizeName(r.name).replace(/ /g, "-")}.csv` });
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+async function loadFichas() {
+  const ev = state.ev;
+  const stillHere = () => state.view === "register" && state.ev === ev;
+  try {
+    const { data, error } = await db().from("fichas").select("code, program").eq("active", true).order("code");
+    if (error) throw new Error(error.message);
+    if (stillHere()) { state.fichas = data; render(); }
+  } catch (e) { if (stillHere()) { state.fichas = null; state.fichaError = e.message; render(); } }
 }
 
 // ───── render y eventos ─────
@@ -330,7 +332,7 @@ document.addEventListener("click", e => {
   }
   if (!quiz && ["answer", "next", "prev", "tip"].includes(a)) return;
   if (a === "answer") {
-    if (!quiz.final && quiz.selections[quiz.index] != null) return;
+    if (quiz.kind === "practice" && quiz.selections[quiz.index] != null) return;
     quiz.selections[quiz.index] = Number(b.dataset.i); persistFinal(); return render();
   }
   if (a === "tip") { quiz.showTip = !quiz.showTip; return render(); }
@@ -340,7 +342,6 @@ document.addEventListener("click", e => {
     if (quiz.final && !confirm("¿Terminar la evaluación final? No podrás cambiar tus respuestas.")) return;
     return finishQuiz();
   }
-  if (a === "csv" && state.r) return downloadCsv(state.r);
   if (a === "retry-send" && state.r) { b.disabled = true; sendResult(state.r).then(render); }
 });
 

@@ -39,18 +39,24 @@ test("conteos y opciones válidas", () => {
   for (const p of Object.values(C.parts)) for (const ex of p.examples) assert.equal(E.flattenEvaluation({ sections: [ex] })[0].answer >= 0, true);
 });
 
-test("scoreAttempt y payloads", () => {
+test("scoreAttempt", () => {
   const ev = C.evaluations.eval1;
   const items = E.flattenEvaluation(ev);
-  const all = E.scoreAttempt(ev, items.map(i => i.answer));
-  assert.equal(all.percent, 100);
+  assert.equal(E.scoreAttempt(ev, items.map(i => i.answer)).percent, 100);
   const none = E.scoreAttempt(ev, items.map(() => -1));
   assert.equal(none.correct, 0); assert.equal(none.missed.length, 15);
-  const r = { ...E.scoreAttempt(ev, items.map((i, k) => k % 2 ? i.answer : -1)), id: "x", name: "Ana", date: new Date().toISOString(), duration: 30, evaluation: "eval1" };
-  const p = E.legacyPayload(r, "3230441");
-  assert.equal(p.total_questions, 15);
-  assert.equal(p.total_correct, p.score_part1 + p.score_part2 + p.score_part3);
-  assert.equal(p.percent, Math.round(100 * p.total_correct / 15));
-  const a = E.assessmentPayload({ ...r, name: " Ána  Ruiz" }, "3230441");
-  assert.equal(a.student_key, "ana ruiz");
+});
+
+test("publicar: el sitio no lleva respuestas y las claves coinciden", () => {
+  const P = require("../tools/publicar.js");
+  const pub = JSON.stringify(P.publicContent(C).evaluations);
+  for (const k of ["answer", "explanation", "feedback", "clue", "keywords"]) assert.ok(!pub.includes(`"${k}"`), k);
+  const keys = P.answerKeys(C);
+  for (const [id, ev] of Object.entries(C.evaluations)) {
+    const items = E.flattenEvaluation(ev);
+    assert.deepEqual(keys[id].map(k => [k.part, k.answer]), items.map(i => [i.part, i.answer]), id);
+    // El sitio público sigue mostrando las mismas preguntas en el mismo orden
+    assert.deepEqual(E.flattenEvaluation(P.publicContent(C).evaluations[id]).map(i => i.options), items.map(i => i.options), id);
+  }
+  assert.ok(P.keysSql(keys).includes("o''clock"), "comillas escapadas en el SQL");
 });

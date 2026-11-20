@@ -33,42 +33,8 @@
     return { correct, total, percent: Math.round(100 * correct / total), byPart, missed };
   }
 
-  // Evaluación 1 sigue usando la tabla original student_results (no se altera su estructura).
-  function legacyPayload(result, ficha) {
-    return {
-      id: result.id,
-      student_name: result.name,
-      group_name: ficha,
-      completed_at: result.date,
-      score_part1: result.byPart[1].correct,
-      score_part2: result.byPart[2].correct,
-      score_part3: result.byPart[3].correct,
-      total_correct: result.correct,
-      total_questions: result.total,
-      percent: result.percent,
-      duration_seconds: result.duration,
-      missed: result.missed.map(m => ({ module: `part${m.part}`, question: m.question }))
-    };
-  }
-
-  function assessmentPayload(result, ficha) {
-    return {
-      id: result.id,
-      evaluation: result.evaluation,
-      student_name: result.name,
-      student_key: normalizeName(result.name),
-      ficha,
-      completed_at: result.date,
-      scores: result.byPart,
-      total_correct: result.correct,
-      total_questions: result.total,
-      percent: result.percent,
-      duration_seconds: result.duration,
-      missed: result.missed
-    };
-  }
-
-  const api = { normalizeName, flattenEvaluation, scoreAttempt, legacyPayload, assessmentPayload };
+  // Las evaluaciones se califican en el servidor (submit_evaluation); scoreAttempt queda para la práctica.
+  const api = { normalizeName, flattenEvaluation, scoreAttempt };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.TyTEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

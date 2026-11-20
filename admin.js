@@ -1,7 +1,7 @@
 "use strict";
 const app = document.getElementById("admin-app");
 const EVALS = { eval1: "Evaluación 1 (P1–P3)", eval2: "Evaluación 2 (P4–P5)", eval3: "Evaluación 3 (P6–P7)", final: "Evaluación final" };
-let client = null, records = [], fichas = [], missingMigration = false;
+let client = null, records = [], fichas = [], keys = {}, missingMigration = false;
 const filters = { ficha: "", evaluation: "", q: "" };
 
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -40,6 +40,9 @@ async function load() {
     if (error) throw error;
     fichas = data;
   } catch { missingMigration = true; fichas = []; }
+  // Las respuestas ya no están en content.js: se leen de la base (solo la profesora tiene permiso)
+  const { data: k } = await client.from("answer_keys").select("evaluation, items");
+  keys = Object.fromEntries((k || []).map(x => [x.evaluation, x.items]));
   records = [
     ...legacy.map(r => ({ id: r.id, evaluation: "eval1", name: r.student_name, ficha: r.group_name || "", date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: { 1: { correct: r.score_part1, total: 5 }, 2: { correct: r.score_part2, total: 5 }, 3: { correct: r.score_part3, total: 5 } }, missed: (r.missed || []).map(m => ({ part: Number(String(m.module).replace("part", "")), question: m.question })) })),
     ...modern.map(r => ({ id: r.id, evaluation: r.evaluation, name: r.student_name, ficha: r.ficha, date: r.completed_at, correct: r.total_correct, total: r.total_questions, percent: r.percent, duration: r.duration_seconds, byPart: r.scores || {}, missed: r.missed || [] }))
@@ -77,11 +80,13 @@ function renderTable() {
 function missedDetail(r) {
   const ev = window.TyTContent?.evaluations?.[r.evaluation];
   const items = ev && window.TyTEngine ? window.TyTEngine.flattenEvaluation(ev) : [];
+  const key = keys[r.evaluation] || [];
   return (r.missed || []).map(m => {
-    const it = items.filter(x => x.part === m.part)[m.question - 1];
+    const i = items.map((x, n) => n).filter(n => items[n].part === m.part)[m.question - 1];
+    const it = items[i];
     if (!it) return { part: m.part, text: `Pregunta ${m.question}`, answer: "" };
-    const q = it.q;
-    return { part: m.part, text: q.prompt || q.message || q.a || q.q || `Espacio (${q.gap}) del texto “${it.section.title || ""}”`, answer: `${String.fromCharCode(65 + it.answer)}. ${it.options[it.answer]}` };
+    const q = it.q, ans = key[i]?.answer;
+    return { part: m.part, text: q.prompt || q.message || q.a || q.q || `Espacio (${q.gap}) del texto “${it.section.title || ""}”`, answer: ans == null ? "" : `${String.fromCharCode(65 + ans)}. ${it.options[ans]}` };
   });
 }
 function studentRow(r) {
