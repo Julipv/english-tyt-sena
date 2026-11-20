@@ -1,0 +1,5 @@
+# Netlify arma la versión sin respuestas y publica SOLO esa carpeta.
+# Así el content.js de la raíz (con respuestas), los .sql, tests/ y legacy/ nunca quedan en el sitio.
+[build]
+  command = "node tools/publicar.js"
+  publish = "publicar"
